@@ -40,6 +40,8 @@ build/Release
 # Dependency directories
 node_modules/
 jspm_packages/
+Anumati-client/node_modules/
+Anumati-Server/node_modules/
 
 # TypeScript v1 declaration files
 typings/
