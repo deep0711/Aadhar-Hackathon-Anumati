@@ -18,6 +18,9 @@ export default function App(){
                 <Stack.Screen name="Registration" component={RegistrationScreen} options={{ headerShown: false}}/>
                 <Stack.Screen name="CreatePIN" component={CreatePINScreen} options={{ headerShown: false}}/>
                 <Stack.Screen name="PINVerification" component={PINVerificationScreen} options={{ headerShown: false}}/>
+                <Stack.Screen name="Dashboard" component={DashboardScreen} options={{ headerShown: false}}/>
+                <Stack.Screen name="NewConsent" component={NewConsentScreen} options={{ headerShown: false}}/>
+                <Stack.Screen name="Notification" component={NotificationScreen} options={{ headerShown: false}}/>
                 */}
                 <Stack.Screen name="TabNav" component={TabNav} options={{ headerShown: false }} />               
             </Stack.Navigator> 
