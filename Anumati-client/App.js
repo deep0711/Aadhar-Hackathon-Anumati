@@ -9,12 +9,12 @@ import TabNav from './src/Screens/TabNav';
 import CreatePin from './src/Screens/CreatePin';
 
 import Store from './src/Reducers';
-
-import { NativeBaseProvider } from 'native-base';
+import customTheme from './theme.json';
+import { NativeBaseProvider, extendTheme } from 'native-base';
 
 export default function App(){
     const Stack = createNativeStackNavigator();
-
+    const theme = extendTheme(customTheme);
     return(
         <Provider store={Store}>
             <NativeBaseProvider>
@@ -28,7 +28,7 @@ export default function App(){
                         <Stack.Screen name="CreatePIN" component={CreatePin} options={{ headerShown: false}}/>
                         {/* <Stack.Screen name="PINVerification" component={PINVerificationScreen} options={{ headerShown: false}}/> */}
                     
-                        {/* <Stack.Screen name="TabNav" component={TabNav} options={{ headerShown: false }} />                */}
+                        <Stack.Screen name="TabNav" component={TabNav} options={{ headerShown: false }} />               
                     </Stack.Navigator> 
                 </NavigationContainer>
             </NativeBaseProvider>

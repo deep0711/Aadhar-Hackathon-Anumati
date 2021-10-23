@@ -1,21 +1,24 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import Dashboard from './Dashboard';
+import DashboardStack from './DashboardStack';
 import Notifications from './Notifications';
+import { StatusBar } from 'react-native';
 
 export default function TabNav() {
 
     const Tab = createBottomTabNavigator();
 
     return (
+      <>
+      <StatusBar />
         <Tab.Navigator
           screenOptions={({route})=>({
             tabBarActiveTintColor: '#222526',
             tabBarInactiveTintColor: '#b6b9ba',
             tabBarIcon: ({ focused, color, size }) => {
                 let iconName;
-                if (route.name === "Dashboard") {
+                if (route.name === "DashboardStack") {
                     iconName = "dashboard";
                 } else if (route.name === 'Notifications') {
                     iconName = "approval";
@@ -31,9 +34,9 @@ export default function TabNav() {
               color: "white"
             }
           })}>
-            <Tab.Screen name="Dashboard" component={Dashboard} options={{ headerShown: false }} />
+            <Tab.Screen name="DashboardStack" component={DashboardStack} options={{ headerShown: false }} />
             <Tab.Screen name="Notifications" component={Notifications} options={{ headerShown: false }} />
         </Tab.Navigator>
-      
+      </>
     );
 }
