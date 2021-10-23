@@ -10,7 +10,7 @@ export default function TabNav() {
 
     return (
         <Tab.Navigator
-        screenOptions={({route})=>({
+          screenOptions={({route})=>({
             tabBarActiveTintColor: '#222526',
             tabBarInactiveTintColor: '#b6b9ba',
             tabBarIcon: ({ focused, color, size }) => {
