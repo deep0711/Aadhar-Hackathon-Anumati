@@ -1,6 +1,7 @@
 require('dotenv').config();
 
 const Consent = require('../models').Consent;
+const token = require('../Controller/token_control');
 const Log = require('../models').Log;
 const { Op } = require("sequelize");
 const multer = require('multer');
@@ -40,6 +41,7 @@ exports.createConsent = async function(req,res){
             }
 
             await Log.create(log_data);
+            await token.sendNotification(ApproverAadhar,"Someone requested for your address");
             res.send({ID:new_consent.ConsentID,message:'Consent Generated Successfully'});
         }    
 
@@ -67,9 +69,15 @@ exports.updateConsent = async function(req,res){
         {
             let new_action;
             if(req.body.Status == 'Approved')
+            {
                 new_action = 'Consent Approved by approver';
+                await token.sendNotification(result.RequesterAadhar,"Your Consent Approved by landlord");
+            }
             else if(req.body.Status == 'Reviewed')
+            {    
                 new_action = 'Approved Address Reviewed by User';
+                await token.sendNotification(result.ApproverAadhar,"Consent approved by you is Reviewed by the user.See Final Address");
+            }    
             else if(req.body.Status == 'Finish')
                 new_action = 'Process Complete';
             
@@ -79,7 +87,7 @@ exports.updateConsent = async function(req,res){
             }
 
             await Log.create(log_data);
-
+            
             res.send({message:'Status Updated successfully'});
         }    
     }catch(err){
