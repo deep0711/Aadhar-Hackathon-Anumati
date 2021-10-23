@@ -1,12 +1,15 @@
 import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import TabNav from './src/Screens/TabNav';
+import TabNav from './Screens/TabNav';
+import customTheme from './theme.json';
+import { NativeBaseProvider, extendTheme } from 'native-base';
 
 export default function App(){
     const Stack = createNativeStackNavigator();
-
+    const theme = extendTheme(customTheme);
     return(
+        <NativeBaseProvider theme={theme} >
         <NavigationContainer>
             <Stack.Navigator>
                 {/*
@@ -22,5 +25,6 @@ export default function App(){
                 <Stack.Screen name="TabNav" component={TabNav} options={{ headerShown: false }} />               
             </Stack.Navigator> 
         </NavigationContainer>
+        </NativeBaseProvider>
     )
 }
