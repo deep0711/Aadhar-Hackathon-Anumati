@@ -3,6 +3,8 @@ import { View, StyleSheet, StatusBar } from 'react-native'
 import {Box, Center, Heading, Text, Image, Button, useTheme } from 'native-base';
 import { NavigationContainer } from '@react-navigation/native';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const AadharPreview = () => (
         <Box
         rounded="lg"
@@ -64,6 +66,23 @@ export default function Dashboard({ navigation }) {
                 </Button>
             </View>
         </View>
+        <Button onPress={async() => {
+                try {
+                    await AsyncStorage.removeItem('userToken');
+                    await AsyncStorage.removeItem('aAdharNumber');
+                    await AsyncStorage.removeItem('mPin');
+                    
+                    navigation.reset({
+                        index: 0,
+                        routes: [{ name: 'Welcome'}]
+                    });
+
+                } catch(err) {
+                    console.log(err);
+                }
+            }}>
+                Logout
+        </Button>
         </>
     )
 };
