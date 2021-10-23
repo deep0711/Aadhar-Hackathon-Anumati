@@ -5,7 +5,7 @@ import { Provider } from 'react-redux';
 
 import WelcomeScreen from './src/Screens/WelcomeScreen';
 import RegistrationScreen from './src/Screens/Registration';
-import TabNav from './src/Screens/TabNav';
+import TabNav from './Screens/TabNav';
 import CreatePin from './src/Screens/CreatePin';
 
 import Store from './src/Reducers';
@@ -17,7 +17,7 @@ export default function App(){
     const theme = extendTheme(customTheme);
     return(
         <Provider store={Store}>
-            <NativeBaseProvider>
+            <NativeBaseProvider theme={theme}>
                 <NavigationContainer>
                     <Stack.Navigator initialRouteName="Welcome">
                         <Stack.Screen name="Welcome" component={WelcomeScreen} options={{ headerShown: false}}/>

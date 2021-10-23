@@ -122,7 +122,10 @@ const AnimatedExample = ( props ) => {
               rightIcon = { <ChevronRightIcon size="7" mt="0.5" color="emerald.500" style={{ justifyContent: 'center'}}/> }
               onPress={() => {
                 if(value === props.storedMPin) {
-                  console.log('Congratulation');
+                  props.navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'TabNav'}]
+                  });
                 } else {
                   console.log('Failed');
                 }
@@ -139,6 +142,10 @@ const AnimatedExample = ( props ) => {
               leftIcon = { <CheckIcon size="5" mt="0.5" color="emerald.500" /> }
               onPress={() => {
                 props.onCreatePin(value);
+                props.navigation.reset({
+                  index: 0,
+                  routes: [{ name: 'TabNav'}]
+                });
               }}
             > 
               CREATE PIN
