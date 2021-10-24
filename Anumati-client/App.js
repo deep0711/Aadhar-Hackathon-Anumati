@@ -12,6 +12,7 @@ import CreatePin from './src/Screens/CreatePin';
 import Store from './src/Reducers';
 import customTheme from './theme.json';
 import { NativeBaseProvider, extendTheme } from 'native-base';
+import InitialConsent from './src/Screens/InitialConsent';
 
 export default function App(){
     const Stack = createNativeStackNavigator();
@@ -23,7 +24,7 @@ export default function App(){
                     <Stack.Navigator initialRouteName="Welcome">
                         <Stack.Screen name="Welcome" component={WelcomeScreen} options={{ headerShown: false}}/>
                         <Stack.Screen name="Tutorial" component={Tutorial} options={{ headerShown: false}}/>
-                        {/* <Stack.Screen name="Consent" component={ConsentScreen} options={{ headerShown: false}}/> */}
+                        <Stack.Screen name="Consent" component={InitialConsent} options={{ headerShown: false}}/>
                         {/* <Stack.Screen name="Language" component={LanguageScreen} options={{ headerShown: false}}/>*/}
                         <Stack.Screen name="Registration" component={RegistrationScreen} options={{ headerShown: false}}/>
                         <Stack.Screen name="CreatePIN" component={CreatePin} options={{ headerShown: false}}/>
