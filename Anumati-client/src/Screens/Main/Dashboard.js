@@ -1,17 +1,20 @@
 import React from 'react'
-import { View, StyleSheet, StatusBar } from 'react-native'
+import { View, StyleSheet, StatusBar,  TouchableOpacity } from 'react-native'
 import {Box, Center, Heading, Text, Image, Button, useTheme } from 'native-base';
-import { NavigationContainer } from '@react-navigation/native';
+import Card from '../../Components/Card';
+import { FontAwesome } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
+import ServiceBtn from '../../Components/ServiceBtn';
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const AadharPreview = () => (
+const AadhaarPreview = () => (
         <Box
         rounded="lg"
+        width="80"
         bg="secondary.400"
         >
             <View style={{ flexDirection: "row", padding: 10 }}>
                 <Image 
+                mx="5"
                 source={{
                     uri: "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"
                 }}
@@ -30,59 +33,52 @@ const AadharPreview = () => (
         </Box>
 );
 
+const AadhaarContainer = ({ colors }) => (
+    <Box
+    borderBottomRadius="20"
+    bg="primary.500">
+        <Center mt="5" mb="10">
+            <Text color="white">
+                updating address made easy
+            </Text>
+            <Heading m="2" color="white">
+                ANUMATI
+            </Heading>
+            <Box my="5">
+            <AadhaarPreview/>
+            </Box>
+        </Center>
+    </Box>
+);
+
 export default function Dashboard({ navigation }) {
     const { colors } = useTheme();
+    
     return (
         <>
         <StatusBar backgroundColor={colors['primary']['500']} />
         <View style={styles.container}>
-            <Box
-            borderBottomRadius="10"
-            bg="primary.500">
-                <Center mt="5" mb="10">
-                    <Text color="white">
-                        updating address made easy
-                    </Text>
-                    <Heading m="3" color="white">
-                        ANUMATI
-                    </Heading>
-                    <AadharPreview/>
-                </Center>
-            </Box> 
-            <View style={ styles.body }>
-                <Button 
-                colorScheme="primary" 
-                onPress={()=>{ navigation.navigate('Request Consent') }}>
-                    <Heading size="md" color="white">
-                        Request Consent
-                    </Heading>  
-                </Button>
-                <Button 
-                onPress={ ()=>{ navigation.navigate('History'); } }
-                colorScheme="light" mt="5">
-                    <Heading size="sm" color="white">
-                        Consent History
-                    </Heading>  
-                </Button>
-            </View>
-        </View>
-        <Button onPress={async() => {
-                try {
-                    await AsyncStorage.removeItem('userToken');
-                    await AsyncStorage.removeItem('aAdharNumber');
-                    await AsyncStorage.removeItem('mPin');
-                    
-                    navigation.reset({
-                        index: 0,
-                        routes: [{ name: 'Welcome'}]
-                    });
+            
+            <AadhaarContainer />
 
-                } catch(err) {
-                    console.log(err);
-                }
-            }}>
-                Logout
-        </Button>
+            <View style={ styles.body }>
+                <ServiceBtn 
+                    handlePress={ ()=>{navigation.navigate('Request Consent')} }
+                    Icon={ <FontAwesome 
+                        name="send-o" 
+                        size={28} 
+                        color={colors["primary"]["500"]} /> }
+                    Label="Resquest Consent" />
+                <ServiceBtn 
+                    handlePress={ ()=>{ navigation.navigate('History')} }
+                    Icon={ <Ionicons 
+                        name="file-tray-stacked" 
+                        size={28} 
+                        color={colors["primary"]["500"]} /> }
+                    Label="Consent History" />
+            </View>
+
+        </View>
         </>
     )
 };
@@ -96,8 +92,11 @@ const styles = StyleSheet.create({
     },
     body: {
         flex: 1, 
-        flexDirection: "column", 
+        flexDirection: "row", 
         alignItems: "center", 
         justifyContent: "center"
+    },
+    aadhaarContainer: {
+
     }
 })
