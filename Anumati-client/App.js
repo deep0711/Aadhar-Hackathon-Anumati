@@ -6,7 +6,7 @@ import { Provider } from 'react-redux';
 import WelcomeScreen from './src/Screens/WelcomeScreen';
 import RegistrationScreen from './src/Screens/Registration';
 import Tutorial from './src/Screens/Tutorial';
-import TabNav from './Screens/TabNav';
+import TabNav from './src/Screens/TabNav';
 import CreatePin from './src/Screens/CreatePin';
 
 import Store from './src/Reducers';
