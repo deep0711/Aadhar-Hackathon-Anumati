@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Anumati-client",
+    "name": "Anumati",
     "slug": "Anumati-client",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -24,7 +24,8 @@
         "foregroundImage": "./src/assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "softwareKeyboardLayoutMode": "pan"
+      "softwareKeyboardLayoutMode": "pan",
+      "permissions": []
     },
     "web": {
       "favicon": "./src/assets/favicon.png"
