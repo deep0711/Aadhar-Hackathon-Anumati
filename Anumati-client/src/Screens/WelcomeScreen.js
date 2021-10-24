@@ -1,24 +1,25 @@
 import React , { useEffect } from "react";
-import { Image, View , StyleSheet , ActivityIndicator} from "react-native";
+import { Image, View , StyleSheet , ActivityIndicator, ImageBackground} from "react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import aadharLogo from '../assets/Aadhar-Color.png';
 import { connect } from "react-redux";
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import Bg from '../assets/BG2.jpg';
 
-import aadharLogo from '../assets/Aadhar-Color.png';
-
-const DELAY_TIME = 1000;
+import * as Permissions from 'expo-permissions'
+const DELAY_TIME = 3000;
 
 function WelcomeScreen( props ) {
 
-    useEffect(() => {
-        props.checkForUserToken();
+    const fetchData = async() => {
+        await props.checkForUserToken();
         setTimeout(async () => {
             try {
                 const value = await AsyncStorage.getItem('userToken');
                 if (value === null) {
                     props.navigation.reset({
                         index: 0,
-                        routes: [{ name: 'Registration'}]
+                        routes: [{ name: 'Tutorial'}]
                     });
                 }  else {
                     props.navigation.reset({
@@ -30,13 +31,39 @@ function WelcomeScreen( props ) {
                 console.log(err);
             }
         } , DELAY_TIME);
+    }
+    useEffect(() => {
+        const checkPermissions = async() => {
+            const { status } = await Permissions.getAsync(
+                Permissions.LOCATION_BACKGROUND, 
+                Permissions.NOTIFICATIONS
+            );
+            if ( status !== 'granted') {
+                const { status } = await Permissions.askAsync(
+                    Permissions.LOCATION_BACKGROUND,
+                    Permissions.NOTIFICATIONS
+                );
+                if (status === 'granted') { 
+                    await fetchData();
+                } 
+            } else {
+                await fetchData();
+            }
+        }
+        checkPermissions();
     } , []);
 
     return(
-        <View style={ styles.container }>
-            <Image source={aadharLogo} style={ styles.logo }/>
-            <ActivityIndicator size="large" color="black" style={{marginTop: 100}}/>
-        </View>
+        <ImageBackground
+            source={Bg}
+            resizeMode="cover"
+            style={{flex:1}}
+        >
+            <View style={ styles.container }>
+                <Image source={aadharLogo} style={ styles.logo }/>
+                <ActivityIndicator size="large" color="black" style={{marginTop: 100}}/>
+            </View>
+        </ImageBackground>
     )
 }
 
