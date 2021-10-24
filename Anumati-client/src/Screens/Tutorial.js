@@ -31,7 +31,7 @@ const Tutorial = ( props ) => {
     const onSubmitButton = () => {
         props.navigation.reset({
             index: 0,
-            routes: [{ name: 'Registration'}]
+            routes: [{ name: 'Consent'}]
         });
     }
     const Slide1 = () => {
