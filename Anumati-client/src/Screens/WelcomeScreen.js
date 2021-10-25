@@ -1,12 +1,10 @@
 import React , { useEffect } from "react";
-import { Image, View , StyleSheet , ActivityIndicator, ImageBackground} from "react-native";
+import { Image, View , StyleSheet , ActivityIndicator, ImageBackground , PermissionsAndroid } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import aadharLogo from '../assets/Aadhar-Color.png';
 import { connect } from "react-redux";
-
 import Bg from '../assets/BG2.jpg';
 
-import * as Permissions from 'expo-permissions'
 const DELAY_TIME = 3000;
 
 function WelcomeScreen( props ) {
@@ -34,21 +32,20 @@ function WelcomeScreen( props ) {
     }
     useEffect(() => {
         const checkPermissions = async() => {
-            const { status } = await Permissions.getAsync(
-                Permissions.LOCATION_BACKGROUND, 
-                Permissions.NOTIFICATIONS
-            );
-            if ( status !== 'granted') {
-                const { status } = await Permissions.askAsync(
-                    Permissions.LOCATION_BACKGROUND,
-                    Permissions.NOTIFICATIONS
-                );
-                if (status === 'granted') { 
-                    await fetchData();
+            try {
+                const granted = await PermissionsAndroid.requestMultiple([
+                    PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+                    PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+                ]);
+                if(
+                    granted['android.permission.ACCESS_FINE_LOCATION'] === 'granted' && 
+                    granted['android.permission.READ_EXTERNAL_STORAGE'] === 'granted'
+                ) {
+                    fetchData();
                 } 
-            } else {
-                await fetchData();
-            }
+            } catch(error) {
+                console.log(error);
+            }  
         }
         checkPermissions();
     } , []);
