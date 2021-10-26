@@ -21,7 +21,7 @@ export default function TabNav() {
             tabBarIcon: ({ focused, color, size }) => {
                 let iconName;
                 switch(route.name){
-                  case "DashboardStack":
+                  case "Consent":
                     iconName = "dashboard";
                     break;
                   case 'Notifications':
@@ -44,7 +44,7 @@ export default function TabNav() {
               color: "white"
             }
           })}>
-            <Tab.Screen name="DashboardStack" component={DashboardStack} options={{ headerShown: false }} />
+            <Tab.Screen name="Consent" component={DashboardStack} options={{ headerShown: false }} />
             <Tab.Screen name="Notifications" component={Notifications} options={{ headerShown: false }} />
             <Tab.Screen name="myAadhaar" component={MyAadhaar} options={{ headerShown: false }} />
         </Tab.Navigator>

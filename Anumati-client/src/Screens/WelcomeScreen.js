@@ -1,15 +1,25 @@
-import React , { useEffect } from "react";
-import { Image, View , StyleSheet , ActivityIndicator, ImageBackground} from "react-native";
+import React , { useEffect,useRef,useState } from "react";
+import { Image, View , StyleSheet , ActivityIndicator, ImageBackground,PermissionsAndroid, Platform} from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import aadharLogo from '../assets/Aadhar-Color.png';
 import { connect } from "react-redux";
-
 import Bg from '../assets/BG2.jpg';
+import * as Notifications from 'expo-notifications';
 
-import * as Permissions from 'expo-permissions'
-const DELAY_TIME = 3000;
+const DELAY_TIME = 2000;
+
+Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: false,
+      shouldSetBadge: false,
+    }),
+  });
 
 function WelcomeScreen( props ) {
+    const [notification, setNotification] = useState(false);
+    const notificationListener = useRef();
+    const responseListener = useRef();
 
     const fetchData = async() => {
         await props.checkForUserToken();
@@ -32,25 +42,70 @@ function WelcomeScreen( props ) {
             }
         } , DELAY_TIME);
     }
+    
     useEffect(() => {
+
         const checkPermissions = async() => {
-            const { status } = await Permissions.getAsync(
-                Permissions.LOCATION_BACKGROUND, 
-                Permissions.NOTIFICATIONS
-            );
-            if ( status !== 'granted') {
-                const { status } = await Permissions.askAsync(
-                    Permissions.LOCATION_BACKGROUND,
-                    Permissions.NOTIFICATIONS
-                );
-                if (status === 'granted') { 
+            try {
+                const granted = await PermissionsAndroid.requestMultiple([
+                    PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+                    PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+                ]);
+                console.log("I am here");
+                const checkLocation = await PermissionsAndroid.check( PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION );
+                const checkMedia = await PermissionsAndroid.check( PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE );
+                if(checkLocation && checkMedia) {
+                    console.log("Location and Media Permission Granted");
+                    const token = await requestNotification();
+                    console.log(token);
+                    AsyncStorage.setItem('ExpoToken',token["data"]);
+
+                    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+                        setNotification(notification);
+                    });
+                  
+                    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+                    console.log(response);
+                    });
+                    
                     await fetchData();
+                }else{
+                    console.log("Permission not granted for Location and Media");
                 } 
-            } else {
-                await fetchData();
-            }
+            } catch(error) {
+                console.log(error);
+            }  
         }
+
+        const requestNotification = async() => {
+            const { status: existingStatus } = await Notifications.getPermissionsAsync();
+            let finalStatus = existingStatus;
+            if (existingStatus !== 'granted') {
+                const { status } = await Notifications.requestPermissionsAsync();
+                finalStatus = status;
+            }
+            if (finalStatus !== 'granted') {
+                console.log("Permission not granted");
+                return;
+            }
+            console.log("Notification Permission granted");
+            token = await Notifications.getExpoPushTokenAsync({
+                experienceId: '@goprone/example',
+            });
+
+            if (Platform.OS === 'android') {
+                Notifications.setNotificationChannelAsync('default', {
+                    name: 'default',
+                    importance: Notifications.AndroidImportance.MAX,
+                    vibrationPattern: [0, 250, 250, 250],
+                    lightColor: '#FF231F7C',
+                });
+                }
+            return token;
+        }
+
         checkPermissions();
+
     } , []);
 
     return(

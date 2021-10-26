@@ -2,7 +2,7 @@ import {Animated, Image, SafeAreaView, Text } from 'react-native';
 import React, {useState} from 'react';
 import Logo from '../assets/Aadhar-Color.png';
 
-import { Button , CheckIcon , ChevronRightIcon} from 'native-base';
+import { Button , CheckIcon , ChevronRightIcon,useToast} from 'native-base';
 import { connect } from 'react-redux';
 
 import {
@@ -43,6 +43,7 @@ const animateCell = ({hasValue, index, isFocused}) => {
 };
 
 const AnimatedExample = ( props ) => {
+    const toast = useToast();
     const [value, setValue] = useState('');
     const ref = useBlurOnFulfill({value, cellCount: CELL_COUNT});
     const [propsCode, getCellOnLayoutHandler] = useClearByFocusCell({
@@ -127,7 +128,12 @@ const AnimatedExample = ( props ) => {
                     routes: [{ name: 'TabNav'}]
                   });
                 } else {
-                  console.log('Failed');
+                  toast.show({
+                    title: "Wrong PIN",
+                    status: "error",
+                    duration: 3000,
+                    variant: "outline-light"
+                });
                 }
               }}
             > 

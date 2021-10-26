@@ -10,6 +10,13 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "plugins": [
+      ["expo-notifications", {
+        "icon": "./src/assets/icon.png",
+        "color": "#ffffff",
+        "mode": "development"
+      }]
+    ],
     "updates": {
       "fallbackToCacheTimeout": 0
     },
@@ -20,12 +27,19 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.code_it_all.anumati",
+      "versionCode": 1,
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
       "softwareKeyboardLayoutMode": "pan",
-      "permissions": []
+      "useNextNotificationsApi": true,
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "READ_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
       "favicon": "./src/assets/favicon.png"
