@@ -6,9 +6,11 @@ import Notifications from './Notifications';
 import MyAadhaar from './MyAadhaar';
 import { StatusBar } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
+import { useTheme } from 'native-base';
 
 export default function TabNav() {
 
+    const { colors } = useTheme();
     const Tab = createBottomTabNavigator();
 
     return (
@@ -45,7 +47,7 @@ export default function TabNav() {
             }
           })}>
             <Tab.Screen name="DashboardStack" component={DashboardStack} options={{ headerShown: false }} />
-            <Tab.Screen name="Notifications" component={Notifications} options={{ headerShown: false }} />
+            <Tab.Screen name="Notifications" component={Notifications} options={{ headerStyle: { backgroundColor: colors["primary"]["500"] } }} />
             <Tab.Screen name="myAadhaar" component={MyAadhaar} options={{ headerShown: false }} />
         </Tab.Navigator>
       </>
