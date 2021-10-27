@@ -3,8 +3,8 @@ import { View, Text, FlatList, TouchableOpacity } from 'react-native'
 import { Box, Heading, useTheme } from 'native-base';
 import { FontAwesome } from '@expo/vector-icons';
 
-const NotificationCard = ({ colors }) => (
-    <TouchableOpacity>
+const NotificationCard = ({ colors, navigation }) => (
+    <TouchableOpacity onPress={ ()=>{ console.log("hi"); navigation.navigate("Request")} }>
     <Box 
             alignItems="center" 
             rounded="md" 
@@ -40,7 +40,7 @@ export default function Notifications({ navigation }) {
         <Box  flex={1} alignItems="center" py="3">
             <FlatList 
             data={DummyData}
-            keyExtractor={ item => item }
+            keyExtractor={ item => item.toString() }
             renderItem={ ()=>(<NotificationCard 
                 colors={colors}
                 navigation={navigation} />) }

@@ -19,7 +19,7 @@ export default function DashboardStack() {
             },
             headerTintColor: "white"
         }}>
-            <Stack.Screen name="dashboard" component={Dashboard} options={{ headerShown: false }} />
+            <Stack.Screen name="DashboardHome" component={Dashboard} options={{ headerShown: false }} />
             <Stack.Screen name="Request Consent" component={RequestConsent} />
             <Stack.Screen name="History" component={HistoryConsent} />
             <Stack.Screen name="Consent Logs" component={ ConsentLog } />

@@ -2,7 +2,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import DashboardStack from './DashboardStack';
-import Notifications from './Notifications';
+import NotificationStack from './NotificationStack';
 import MyAadhaar from './MyAadhaar';
 import { StatusBar } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
@@ -23,7 +23,7 @@ export default function TabNav() {
             tabBarIcon: ({ focused, color, size }) => {
                 let iconName;
                 switch(route.name){
-                  case "DashboardStack":
+                  case "Dashboard":
                     iconName = "dashboard";
                     break;
                   case 'Notifications':
@@ -46,8 +46,8 @@ export default function TabNav() {
               color: "white"
             }
           })}>
-            <Tab.Screen name="DashboardStack" component={DashboardStack} options={{ headerShown: false }} />
-            <Tab.Screen name="Notifications" component={Notifications} options={{ headerStyle: { backgroundColor: colors["primary"]["500"] } }} />
+            <Tab.Screen name="Dashboard" component={DashboardStack} options={{  headerShown: false }} />
+            <Tab.Screen name="Notifications" component={NotificationStack} options={{  headerShown: false }} />
             <Tab.Screen name="myAadhaar" component={MyAadhaar} options={{ headerShown: false }} />
         </Tab.Navigator>
       </>
