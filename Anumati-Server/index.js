@@ -7,11 +7,10 @@ const { Sequelize } = require('sequelize');
 const db = require('./models')
 var pg = require('pg');
 pg.defaults.ssl = true;
-
 const app = express();
 const port = 8000;
-
 app.use(cors());
+
 
 app.use(express.json());
 app.use(express.urlencoded({
@@ -49,6 +48,7 @@ app.get("/", (req, res) => {
 app.use('/anumati-server',Server);
 let server; 
 //create tables
+
 db.sequelize.sync().then((req) => {
   // Start server 
   server = app.listen(process.env.PORT | port,()=>{
@@ -63,5 +63,5 @@ db.sequelize.sync().then((req) => {
 process.on("SIGINT", () =>{
     console.log("Server & Database connection CLosed");
   server.close();
-  sequelize.close();
+  //sequelize.close();
 })

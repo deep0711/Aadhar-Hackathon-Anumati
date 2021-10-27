@@ -9,13 +9,18 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "atob": "^2.1.2",
     "aws-sdk": "^2.1013.0",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
+    "file-saver": "^2.0.5",
+    "jszip": "^3.7.1",
     "multer": "^1.4.3",
     "multer-s3": "^2.10.0",
     "pg": "^8.7.1",
-    "sequelize": "^6.7.0"
+    "sequelize": "^6.7.0",
+    "unzipper": "^0.10.11",
+    "xml2json": "^0.12.0"
   }
 }

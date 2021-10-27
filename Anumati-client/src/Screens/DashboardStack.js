@@ -12,14 +12,15 @@ export default function DashboardStack() {
     const Stack = createNativeStackNavigator();
     return (
         <Stack.Navigator
+        initialRouteName = "Dashboard"
         screenOptions={{
             headerStyle: {
                 backgroundColor: colors['primary']['500'] ,
             },
             headerTintColor: "white"
         }}>
-            <Stack.Screen name="dashboard" component={Dashboard} options={{ headerShown: false }} />
-            <Stack.Screen name="Request Consent" component={RequestConsent} />
+            <Stack.Screen name="Dashboard" component={Dashboard} options={{ headerShown: false }} />
+            <Stack.Screen name="Request-Consent" component={RequestConsent} />
             <Stack.Screen name="History" component={HistoryConsent} />
         </Stack.Navigator>
     )

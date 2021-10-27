@@ -27,7 +27,7 @@ export default function TabNav() {
                   case 'Notifications':
                     iconName = "approval";
                     break;
-                  case "myAadhaar":
+                  case "MyAadhaar":
                     iconName = "id-card";
                     return <FontAwesome name="id-card" size={size} color={color} />;
                 }; 
@@ -46,7 +46,7 @@ export default function TabNav() {
           })}>
             <Tab.Screen name="Consent" component={DashboardStack} options={{ headerShown: false }} />
             <Tab.Screen name="Notifications" component={Notifications} options={{ headerShown: false }} />
-            <Tab.Screen name="myAadhaar" component={MyAadhaar} options={{ headerShown: false }} />
+            <Tab.Screen name="MyAadhaar" component={MyAadhaar} options={{ headerShown: false }} />
         </Tab.Navigator>
       </>
     );

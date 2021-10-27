@@ -1,9 +1,8 @@
 import React , { useState,useEffect } from "react";
 import Logo from '../assets/Aadhar-Color.png';
-import { Divider , Button , Input ,useToast } from "native-base";
+import { Button , Input ,useToast } from "native-base";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { v4 as uuid_v4 } from 'uuid';
-//import * as Notifications from 'expo-notifications';
 import { View , Image , StyleSheet, ImageBackground , Text} from "react-native";
 import Bg from '../assets/BG2.jpg';
 
@@ -94,7 +93,7 @@ function RegistrationScreen( props ) {
                         });
                         setOtpSent(true);
                         setTxnId(response["txnId"]);
-                        props.navigation.navigate('CreatePIN');
+                        //props.navigation.navigate('CreatePIN');
                     }else if(response["type"] == "UNABLE_TO_REACH_AUTH_SERVICE_ERROR"){
                         toast.show({
                             title: "Entered Aadhar does not exist.Try Again",
@@ -156,37 +155,98 @@ function RegistrationScreen( props ) {
             })
         }).then(response => response.json()
         ).then(async function(response){
-            console.log("Data response:",response);
+            
             if(response["status"] == "Success"){
-
-                //Data Fetch Successful and store the data in encrypted manner in Async storage-to be done
-                toast.show({
-                    title: "Registration Succesful",
-                    status: "success",
-                    duration: 3000,
-                    variant: "outline-light"
-                });
-                setIsLoading(false);
-
-                //Storing Token for Push Notification
+                var ekycxml = response["eKycXML"];
+                var fileName = response["fileName"];
+                //console.log(ekycxml);
+                //console.log(fileName);
                 
-                const token = AsyncStorage.getItem('ExpoToken');
-                console.log(token);
-
-                const response = await fetch('http://localhost:8000/anumati-server/store-token',{
+                fetch('https://anumati.herokuapp.com/anumati-server/unzip-xml',{
                     method:'POST',
+                    headers: {
+                        'Accept': 'application/json',  // It can be used to overcome cors errors
+                        'Content-Type': 'application/json'
+                    },
                     body:JSON.stringify({
-                        "Aadhar" :aadharNo,
-                        "Token" : token
+                        "base64xml" :ekycxml,
+                        "filename" : fileName
                     })
-                })
-                
-                if(typeof response.error == 'undefined')
-                {
-                    console.log("Push Token Stored successfully");
-                }
-                
-                props.navigation.navigate('CreatePIN');
+                }).then(async (response) => {
+
+                    response = await response.json();
+                    response = await JSON.parse(response);
+                    const data = response;
+                    console.log("Unzip Data is ",data);
+                    if(typeof response["error"] == 'undefined')
+                    {
+                        const poi = data['OfflinePaperlessKyc']['UidData']['Poi'];
+                        await AsyncStorage.setItem("dob",poi['dob']);
+                        await AsyncStorage.setItem("gender",poi['gender']);
+                        await AsyncStorage.setItem("name",poi['name']);
+                        
+                        const poa = data['OfflinePaperlessKyc']['UidData']['Poa'];
+
+                        await AsyncStorage.setItem('country',poa['country']);
+                        await AsyncStorage.setItem('dist',poa['dist']);
+                        await AsyncStorage.setItem('house',poa['house']);
+                        await AsyncStorage.setItem('landmark',poa['landmark']);
+                        await AsyncStorage.setItem('loc',poa['loc']);
+                        await AsyncStorage.setItem('pc',poa['pc']);
+                        await AsyncStorage.setItem('po',poa['po']);
+                        await AsyncStorage.setItem('state',poa['state']);
+                        await AsyncStorage.setItem('street',poa['street']);
+                        await AsyncStorage.setItem('subdist',poa['subdist']);
+                        await AsyncStorage.setItem('vtc',poa['vtc']);
+
+                        const photo = data['OfflinePaperlessKyc']['UidData']['Pht'];
+
+                        await AsyncStorage.setItem('photo',photo);
+
+                        toast.show({
+                            title: "Login Succesful",
+                            status: "success",
+                            duration: 3000,
+                            variant: "outline-light"
+                        });
+                        
+                        //Storing Token for Push Notification
+                        
+                        const token = await AsyncStorage.getItem('ExpoToken');
+                        console.log(token);
+
+                        fetch('https://anumati.herokuapp.com/anumati-server/store-token',{
+                            method:'POST',
+                            headers: {
+                                'Accept': 'application/json',  // It can be used to overcome cors errors
+                                'Content-Type': 'application/json'
+                            },
+                            body:JSON.stringify({
+                                "aadhar" :aadharNo,
+                                "token" : token
+                            })
+                        }).then(async function(tokenresponse){
+                            tokenresponse = await tokenresponse.json();
+                            console.log("Toke REsponse:",tokenresponse["message"]);
+                            
+                            setIsLoading(false);
+
+                            props.navigation.navigate('CreatePIN');
+                        }).catch((err) => {console.log(err);setIsLoading(false);});
+                    }else{
+                        toast.show({
+                            title: "Data Fetching Failed.Please Try again",
+                            status: "error",
+                            duration: 3000,
+                            variant: "outline-light"
+                        });
+                        props.navigation.reset({
+                            index: 0,
+                            routes: [{ name: 'Registration'}]
+                        });
+                        setIsLoading(false);
+                    }
+                })        
             }else{
                 toast.show({
                     title: "Wrong OTP",
@@ -195,8 +255,8 @@ function RegistrationScreen( props ) {
                     duration: 5000,
                     variant: "outline-light"
                 });
+                setIsLoading(false);
             }
-            setIsLoading(false);
         }).catch(err => {console.log(err);setIsLoading(false);})
     }catch(err){ console.log(err)};
     }

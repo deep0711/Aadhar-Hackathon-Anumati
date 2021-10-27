@@ -100,7 +100,7 @@ const AnimatedExample = ( props ) => {
     <SafeAreaView style={styles.root}>
         <Text style={styles.title}> {props.loginStatus ? "Lock Screen" : "Set Up Your Secure Pin"} </Text> 
         <Image style={styles.icon} source={Logo} />
-        <Text style={styles.subTitle}> { props.loginStatus ? "Enter Your Secure Pin" : "Pin will be used to Further Login's"} </Text> 
+        <Text style={styles.subTitle}> { props.loginStatus ? "Enter Your Secure Pin to Login" : "Pin will be used to Further Login's"} </Text> 
 
         <CodeField
           ref={ref}
@@ -150,7 +150,7 @@ const AnimatedExample = ( props ) => {
                 props.onCreatePin(value);
                 props.navigation.reset({
                   index: 0,
-                  routes: [{ name: 'TabNav'}]
+                  routes: [{ name: 'CreatePIN'}]
                 });
               }}
             > 
@@ -170,10 +170,29 @@ const mapStatetoProps = ( state ) => {
 
 const mapDispatchToProps = ( dispatch ) => {
   return {
-    onCreatePin: async (pinCode) => { 
-      await AsyncStorage.setItem('mPin' , pinCode);
-      await AsyncStorage.setItem('userToken' , '#f7j38df');
-      dispatch({ type: 'CREATE_PIN' , pin: pinCode});
+    onCreatePin: async (pinCode) => {
+      const aadharNo = await AsyncStorage.getItem('aAdharNumber');
+      fetch('https://anumati.herokuapp.com/anumati-server/store-pin',{
+          method:'POST',
+          headers: {
+              'Accept': 'application/json',  // It can be used to overcome cors errors
+              'Content-Type': 'application/json'
+          },
+          body:JSON.stringify({
+              "aadhar":aadharNo,
+              "pin": pinCode
+          })
+      }).then(async function(response){
+          response = await response.json();
+          console.log(response);
+          if(response["message"] === "PIN created successfully!")
+          {
+            console.log("PIN stored successfuly");
+            await AsyncStorage.setItem('mPin' , pinCode);
+            await AsyncStorage.setItem('userToken' , '#f7j38df');
+            dispatch({ type: 'CREATE_PIN' , pin: pinCode});
+          }    
+      }).catch((err) => {console.log(err)});
     }
   }
 }

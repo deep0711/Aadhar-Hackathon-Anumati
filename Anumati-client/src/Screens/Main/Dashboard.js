@@ -1,12 +1,12 @@
-import React from 'react'
+import React,{useEffect, useState} from 'react'
 import { View, StyleSheet, StatusBar,  TouchableOpacity } from 'react-native'
 import {Box, Center, Heading, Text, Image, Button, useTheme } from 'native-base';
-import Card from '../../Components/Card';
 import { FontAwesome } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
 import ServiceBtn from '../../Components/ServiceBtn';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const AadhaarPreview = () => (
+const AadhaarPreview = ({photo,name,aadharNo}) => (
         <Box
         rounded="lg"
         width="80"
@@ -16,24 +16,24 @@ const AadhaarPreview = () => (
                 <Image 
                 mx="5"
                 source={{
-                    uri: "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"
+                    uri:photo
                 }}
                 alt="profile image"
                 size="sm"
                 borderRadius={100} />
                 <View style={{ flexDirection: "column", marginHorizontal: 10 }} >
                 <Heading size="md" >
-                    Roshan Rai
+                    {name}
                 </Heading>
                 <Text>
-                    XXXXXXXXXXX
+                    {aadharNo}
                 </Text>
                 </View>
             </View>
         </Box>
 );
 
-const AadhaarContainer = ({ colors }) => (
+const AadhaarContainer = ({photo,name,aadharNo}) => (
     <Box
     borderBottomRadius="20"
     bg="primary.500">
@@ -45,25 +45,47 @@ const AadhaarContainer = ({ colors }) => (
                 ANUMATI
             </Heading>
             <Box my="5">
-            <AadhaarPreview/>
+            <AadhaarPreview photo={photo} name={name} aadharNo={aadharNo} />
             </Box>
         </Center>
     </Box>
 );
 
-export default function Dashboard({ navigation }) {
-    const { colors } = useTheme();
+export default function Dashboard({navigation}) {
+
+    const [photo,setPhoto] = useState("");
+    const [name,setName] = useState("");
+    const [aadhar,setAadhar] = useState("");
     
+    const [count,setCount] = useState(0);
+
+    useEffect(() => {
+        const loadData = async () =>{
+            setPhoto("data:image/png;base64," + await AsyncStorage.getItem('photo'));
+            setName(await AsyncStorage.getItem('name'));
+            setAadhar(await AsyncStorage.getItem('aAdharNumber'));
+            setCount(1);
+        }
+        
+        loadData();
+    }, [])
+    
+    const { colors } = useTheme();
+    if(count==0){
+        return(
+            <></>
+        )
+    }
     return (
         <>
         <StatusBar backgroundColor={colors['primary']['500']} />
         <View style={styles.container}>
             
-            <AadhaarContainer />
-
+            <AadhaarContainer photo={photo} name={name} aadharNo={"XXXX XXXX " + aadhar.substring(8)} />
+            
             <View style={ styles.body }>
                 <ServiceBtn 
-                    handlePress={ ()=>{navigation.navigate('Request Consent')} }
+                    handlePress={ ()=>{navigation.navigate('Request-Consent')} }
                     Icon={ <FontAwesome 
                         name="send-o" 
                         size={28} 
@@ -77,7 +99,6 @@ export default function Dashboard({ navigation }) {
                         color={colors["primary"]["500"]} /> }
                     Label="Consent History" />
             </View>
-
         </View>
         </>
     )
@@ -96,7 +117,4 @@ const styles = StyleSheet.create({
         alignItems: "center", 
         justifyContent: "center"
     },
-    aadhaarContainer: {
-
-    }
 })

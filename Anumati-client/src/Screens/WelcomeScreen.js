@@ -5,8 +5,9 @@ import aadharLogo from '../assets/Aadhar-Color.png';
 import { connect } from "react-redux";
 import Bg from '../assets/BG2.jpg';
 import * as Notifications from 'expo-notifications';
-
-const DELAY_TIME = 2000;
+import base64 from 'react-native-base64';
+import JSZip from 'jszip';
+const DELAY_TIME = 3000;
 
 Notifications.setNotificationHandler({
     handleNotification: async () => ({
@@ -47,18 +48,17 @@ function WelcomeScreen( props ) {
 
         const checkPermissions = async() => {
             try {
-                const granted = await PermissionsAndroid.requestMultiple([
+                await PermissionsAndroid.requestMultiple([
                     PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
                     PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
                 ]);
-                console.log("I am here");
                 const checkLocation = await PermissionsAndroid.check( PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION );
                 const checkMedia = await PermissionsAndroid.check( PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE );
+                
                 if(checkLocation && checkMedia) {
                     console.log("Location and Media Permission Granted");
                     const token = await requestNotification();
-                    console.log(token);
-                    AsyncStorage.setItem('ExpoToken',token["data"]);
+                    await AsyncStorage.setItem('ExpoToken',token["data"]);
 
                     notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
                         setNotification(notification);
