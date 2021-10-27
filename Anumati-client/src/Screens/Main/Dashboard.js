@@ -39,7 +39,7 @@ const AadhaarContainer = ({ colors }) => (
     bg="primary.500">
         <Center mt="5" mb="10">
             <Text color="white">
-                updating address made easy
+                Updating address made easy
             </Text>
             <Heading m="2" color="white">
                 ANUMATI

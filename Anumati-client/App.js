@@ -5,12 +5,14 @@ import { Provider } from 'react-redux';
 
 import WelcomeScreen from './src/Screens/WelcomeScreen';
 import RegistrationScreen from './src/Screens/Registration';
+import Tutorial from './src/Screens/Tutorial';
 import TabNav from './src/Screens/TabNav';
 import CreatePin from './src/Screens/CreatePin';
 
 import Store from './src/Reducers';
 import customTheme from './theme.json';
 import { NativeBaseProvider, extendTheme } from 'native-base';
+import InitialConsent from './src/Screens/InitialConsent';
 
 export default function App(){
     const Stack = createNativeStackNavigator();
@@ -21,9 +23,9 @@ export default function App(){
                 <NavigationContainer>
                     <Stack.Navigator initialRouteName="Welcome">
                         <Stack.Screen name="Welcome" component={WelcomeScreen} options={{ headerShown: false}}/>
-                        {/* <Stack.Screen name="Tutorial" component={TutorialScreen} options={{ headerShown: false}}/>
-                        <Stack.Screen name="Consent" component={ConsentScreen} options={{ headerShown: false}}/>
-                        <Stack.Screen name="Language" component={LanguageScreen} options={{ headerShown: false}}/>*/}
+                        <Stack.Screen name="Tutorial" component={Tutorial} options={{ headerShown: false}}/>
+                        <Stack.Screen name="Consent" component={InitialConsent} options={{ headerShown: false}}/>
+                        {/* <Stack.Screen name="Language" component={LanguageScreen} options={{ headerShown: false}}/>*/}
                         <Stack.Screen name="Registration" component={RegistrationScreen} options={{ headerShown: false}}/>
                         <Stack.Screen name="CreatePIN" component={CreatePin} options={{ headerShown: false}}/>
                         {/* <Stack.Screen name="PINVerification" component={PINVerificationScreen} options={{ headerShown: false}}/> */}
