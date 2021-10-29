@@ -52,7 +52,7 @@ export default function HistoryConsent({ navigation }) {
     const getAadhar = async() => {
         AsyncStorage.getItem('aAdharNumber').then((result) => {
             setAadharNo(result);
-        })    
+        });
     }
     const getDetails = async () => {
         try{
