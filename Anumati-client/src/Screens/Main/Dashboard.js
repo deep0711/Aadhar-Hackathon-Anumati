@@ -78,7 +78,6 @@ export default function Dashboard({navigation}) {
      * Get Recent Consent
      */
     const getLatestConsetDetail = async() => {
-        console.log("In Get Latest Detail Function -> " , aadhar);
         try {
             await fetch("https://anumati.herokuapp.com/anumati-server/get-consent-detail" , {
                 method:'POST',
@@ -92,7 +91,6 @@ export default function Dashboard({navigation}) {
             })
             .then(async function (response) {
                 response = await response.json();
-                console.log(response["data"].length);
                 const consentArrayLength = response["data"].length;
                 if(consentArrayLength !== 0) {
                     const item = response["data"][consentArrayLength - 1];
