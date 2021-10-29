@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useState,useEffect} from 'react';
 import Card from '../../Components/Card';
 import {View} from 'react-native';
 import {Box, Button, Center, Heading, useTheme } from 'native-base';
@@ -18,7 +18,7 @@ const ConsentSuccess = ({ colors, handlePress }) => (
             Consent Approved
         </Heading>
         <Heading size="lg">
-            Log Generated
+            Finish Your Process
         </Heading>
         <Button
         mt="5"
@@ -27,7 +27,7 @@ const ConsentSuccess = ({ colors, handlePress }) => (
             onPress={ handlePress }
             color="white"
             size="md">
-                Go Home
+                Print Consent Form
             </Heading>
         </Button>
     </Center>
@@ -60,13 +60,64 @@ const ConsentFail = ({ colors, handlePress }) => (
     </Box>
 );
 
-export default function Verdict({ setCurrent, success=true, navigation }) {
+export default function Verdict({ setCurrent, success=true, navigation,ConsentID,House}) {
     const { colors } = useTheme();
-    const handleHome = () => {
+    const [country,setCountry] = useState("");
+    const [dist,setDist] = useState("");
+    const [house,setHouse] = useState("");
+    const [loc,setLOC] = useState("");
+    const [pc,setPC] = useState("");
+    const [po,setPO] = useState("");
+    const [state,setState] = useState("");
+    const [street,setStreet] = useState("");
+    const [subdist,setSubDist] = useState("");
+    const [vtc,setVtc] = useState("");
+   
+    const handleHome = async () => {
         // reset the consent
-        navigation.goBack();
-        setCurrent(0);
+        //Print the Consent request;
+        await fetch('https://anumati.herokuapp.com/anumati-server/update-consent',{
+            method:'POST',
+            headers: {
+                'Accept': 'application/json',  // It can be used to overcome cors errors
+                'Content-Type': 'application/json'
+            },
+            body:JSON.stringify({
+                "Status":"Finish",
+                "ConsentID":ConsentID
+            })
+        }).then(async function(response){
+            response = await response.json();
+            console.log(response["message"]);
+            navigation.navigate('Dashboard');   
+        }).catch(err=>console.log(err));
     };
+    useEffect(() => {
+
+      fetch('https://anumati.herokuapp.com/anumati-server/get-address',{
+          method:'POST',
+          headers: {
+              'Accept': 'application/json',  // It can be used to overcome cors errors
+              'Content-Type': 'application/json'
+          },
+          body:JSON.stringify({
+              "ConsentID":ConsentID,
+          })
+      }).then(async function(response){
+          response = await response.json();
+          setHouse(response["HouseNumber"])
+          setCountry(response["Country"]);
+          setDist(response["District"]);
+          setLOC(response["Area"]);
+          setPC(response["PinCode"]);
+          setPO(response["PostOffice"]);
+          setState(response["State"]);
+          setStreet(response["StreetName"]);
+          setSubDist(response["SubDist"]);
+          setVtc(response["Village"]);   
+      }).catch(err=>console.log(err));
+      
+  }, [])
 
     return (
         <View 

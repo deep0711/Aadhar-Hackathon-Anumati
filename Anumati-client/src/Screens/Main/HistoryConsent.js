@@ -1,73 +1,117 @@
-import React from 'react';
+import React, { useState,useEffect } from 'react';
 import { Text, TouchableOpacity, FlatList } from 'react-native';
 import { Box, Heading } from 'native-base';
 import Card from '../../Components/Card';
 import { FontAwesome } from '@expo/vector-icons';
-import { Foundation } from '@expo/vector-icons';
+import { Foundation,AntDesign,Ionicons } from '@expo/vector-icons';
 import { useTheme } from 'styled-components';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Loader from '../Loader';
 
-const ConsentLog = ({ colors, data }) => (
+const ConsentLog = ({ colors, data }) => {
+    return(
     <Card width="370" mt="3" py="3" px="3">
         <Box
         height="20"
         flexDirection="row" >
-            { data.accepted ? <FontAwesome name="check-circle-o" size={42} color={colors["success"]["500"]} /> :
-                <Foundation name="x-circle" size={42} color={colors["error"]["500"]} /> }
+            { data.Status=="Approved" ? <FontAwesome name="check-circle-o" size={42} color={colors["success"]["500"]} /> :
+                (data.Status=="Rejected" ? <Foundation name="x-circle" size={42} color={colors["error"]["500"]} /> : ((data.Status == "Reviewed" || data.Status == "Finish")  ? <Ionicons name="checkmark-done-circle" size={42} color={colors["success"]["500"]} /> : <AntDesign name="exclamationcircle" size={42} color='#F98739' />) )}
             <Box 
             mx="5"
             height="full"
             flexDirection="column" >
-                <Heading size="md">Consent To {data.owner}</Heading>
-                <Text>date: {data.date}</Text>
+                <Heading size="md">Consent to {"XXXX XXXX "+data.ApproverAadhar.substr(8)}</Heading>
+                <Text>Date: {data.createdAt.toString().substr(0,10)}</Text>
+                <Text>Status: {data.Status}</Text>
             </Box>
         </Box>
     </Card>
-);
+    )};
 
 
 const HistoryList = ({ colors, dataList, navigation }) => {
-
     return <Box flex={1} alignItems="center" width="full" >
         <FlatList 
         data={dataList}
-        keyExtractor={ item=>item.id.toString() }
-        renderItem={ ({item})=>(
-            <TouchableOpacity onPress={()=>{navigation.navigate("Consent Logs")}}>
+        keyExtractor={ item=>item.ConsentID}
+        renderItem={ ({item})=>{
+            return(
+            <TouchableOpacity onPress={()=>{ item.Status=="Approved" ? (navigation.navigate("Request-Consent",{ConsentId:item.ConsentID,Screen:2})):(navigation.navigate("Consent Logs",{ConsentId:item.ConsentID}))}}>
                     <ConsentLog colors={colors} data={item} />
-                </TouchableOpacity>
-        ) } />
+            </TouchableOpacity>)
+         } } />
     </Box>
 }
 
 export default function HistoryConsent({ navigation }) {
-    const history = [1];
-    const dataList = [{
-        id: 1,
-        owner: "Deepak Pandya",
-        date: "20/5/2020",
-        accepted: true
-    } , {
-        id: 2,
-        owner: "Kunal Khanra",
-        date: "19/3/2020",
-        accepted: false
-    }, {
-        id: 3,
-        owner: "Roshan Rai",
-        date: "19/4/2020",
-        accepted: true
-    }];
+    
+    const [aadharNo,setAadharNo] = useState('');
+    const [dataList,setDataList] = useState();
+    const [count,setCount] = useState(0);
+    
+    const getAadhar = async() => {
+        AsyncStorage.getItem('aAdharNumber').then((result) => {
+            setAadharNo(result);
+        })    
+    }
+    const getDetails = async () => {
+        try{
+                console.log("Aadhar is",aadharNo);
+                fetch('https://anumati.herokuapp.com/anumati-server/get-consent-detail',{
+                    method:'POST',
+                    headers: {
+                        'Accept': 'application/json',  // It can be used to overcome cors errors
+                        'Content-Type': 'application/json'
+                    },
+                    body:JSON.stringify({
+                        "aadhar":aadharNo,
+                    })
+                }).then(async function(response){
+                    response = await response.json();
+                    console.log(response);
+                    if(response["message"] ==='Consent Extracted Successfully')
+                    {
+                        setDataList(response['data']);
+                        var cnt = 0;
+                        response['data'].map(item=>{
+                            if(item.Status == "Pending" || item.Status == "Approved")
+                            cnt=1;
+                        })
 
-    console.log(history.length);
+                        if(cnt == 0)
+                        {
+                            console.log("New COnsent is Allowed");
+                            await AsyncStorage.setItem('RequestInProgress','false');
+                        }
+                        setCount(1);   
+                    }
+                    }).catch(err=>console.log(err));
+            }catch(err){
+                console.log("Error is ",err);
+            }
+    }
+    useEffect(() => {
+        if(aadharNo === ''){
+            getAadhar();
+        }else{
+            getDetails();
+        }
+    }, [aadharNo])
+    
     const { colors } = useTheme();
 
+    if(count == 0)
+        return (
+            <Loader/>
+        )
+    else if(count == 1){      
     return (
         <Box 
         flex="1" 
         justifyContent="center"
         alignItems="center" >
             {
-                history.length==0 ? 
+                dataList.length==0 ? 
                 <Card 
                 borderRadius="lg">
                 <Heading m="10">
@@ -81,4 +125,5 @@ export default function HistoryConsent({ navigation }) {
             }
         </Box>
     );
+    }
 }

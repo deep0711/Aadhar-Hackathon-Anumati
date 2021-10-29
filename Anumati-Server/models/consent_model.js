@@ -7,6 +7,13 @@ module.exports = (sequelize,DataTypes) => {
             defaultValue : Sequelize.UUIDV4(),
             primaryKey: true
         },
+        RequesterName : {
+            type : DataTypes.STRING,
+            allowNull : false,
+            validate : {
+                notEmpty : true
+            }
+        },
         RequesterAadhar : {
             type : DataTypes.STRING,
             allowNull : false,

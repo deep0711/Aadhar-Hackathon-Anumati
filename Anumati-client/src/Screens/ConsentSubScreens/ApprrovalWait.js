@@ -23,13 +23,14 @@ export default function ApprovalWait({ setCurrent }) {
                         Sit back and relax
                     </Heading>
                 </Center>
-
+                {/*
                 <Box mt="10">
                     <Button
                     onPress={()=>{ setCurrent(2) }}>
                         Debug Next 
                     </Button>                
-                </Box>
+                </Box>*/
+                }
             </Box>
         </Card>
         </View>);

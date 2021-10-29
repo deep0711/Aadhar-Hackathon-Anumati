@@ -13,6 +13,10 @@ Router.post('/get-pin',pin_controller.getPin);
 Router.post('/create-consent',consent_controller.createConsent);
 Router.post('/update-consent',consent_controller.updateConsent);
 Router.post('/get-consent-detail',consent_controller.getConsentDetails);
+Router.post('/get-consent-to-approve',consent_controller.getConsenttobeApproved);
+Router.post('/get-consent-by-id',consent_controller.getConsentbyId);
+Router.post('/get-logs-by-id',consent_controller.getLogbyId);
+
 
 Router.post('/store-address',address_controller.storeAddress);
 Router.post('/update-address',address_controller.updateAdress);

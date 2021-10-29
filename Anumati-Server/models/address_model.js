@@ -43,6 +43,12 @@ module.exports = (sequelize,DataTypes) => {
         PinCode : {
             type : DataTypes.STRING
         },
+        Country:{
+            type : DataTypes.STRING
+        },
+        SubDist:{
+            type : DataTypes.STRING
+        }
     });
 
     return Address;

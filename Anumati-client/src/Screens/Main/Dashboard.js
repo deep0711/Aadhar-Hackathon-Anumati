@@ -58,17 +58,18 @@ export default function Dashboard({navigation}) {
     const [aadhar,setAadhar] = useState("");
     
     const [count,setCount] = useState(0);
-
+    const [RequestInProgress,setRequest] = useState('');
+    
+    const loadData = async () =>{
+        setPhoto("data:image/png;base64," + await AsyncStorage.getItem('photo'));
+        setName(await AsyncStorage.getItem('name'));
+        setAadhar(await AsyncStorage.getItem('aAdharNumber'));
+        setRequest(await AsyncStorage.getItem('RequestInProgress'));
+        setCount(1);
+    }
     useEffect(() => {
-        const loadData = async () =>{
-            setPhoto("data:image/png;base64," + await AsyncStorage.getItem('photo'));
-            setName(await AsyncStorage.getItem('name'));
-            setAadhar(await AsyncStorage.getItem('aAdharNumber'));
-            setCount(1);
-        }
-        
         loadData();
-    }, [])
+    }, [RequestInProgress])
     
     const { colors } = useTheme();
     if(count==0){
@@ -84,13 +85,14 @@ export default function Dashboard({navigation}) {
             <AadhaarContainer photo={photo} name={name} aadharNo={"XXXX XXXX " + aadhar.substring(8)} />
             
             <View style={ styles.body }>
+                {RequestInProgress != "true" ?
                 <ServiceBtn 
                     handlePress={ ()=>{navigation.navigate('Request-Consent')} }
                     Icon={ <FontAwesome 
                         name="send-o" 
                         size={28} 
                         color={colors["primary"]["500"]} /> }
-                    Label="Resquest Consent" />
+                    Label="Resquest Consent" />:<></>}
                 <ServiceBtn 
                     handlePress={ ()=>{ navigation.navigate('History')} }
                     Icon={ <Ionicons 

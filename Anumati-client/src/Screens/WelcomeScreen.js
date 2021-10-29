@@ -137,6 +137,7 @@ const mapDispatchToProps = ( dispatch ) => {
                 const aadharCardNumber = await AsyncStorage.getItem('aAdharNumber');
                 const mPin = await AsyncStorage.getItem('mPin');
                 if (value !== null) {
+                    console.log("Token Already Present");
                     dispatch({ type: 'TOKEN_FOUND' , aNumber: aadharCardNumber , _mPin: mPin}); 
                 }  
             } catch(err) {

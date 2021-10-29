@@ -26,7 +26,8 @@ exports.createConsent = async function(req,res){
             RequesterAadhar: req.body.RequesterAadhar,
             ApproverAadhar: req.body.ApproverAadhar,
             Status: req.body.Status,
-            attachment: req.body.attachment
+            attachment: req.body.attachment,
+            RequesterName:req.body.RequesterName
         }
 
         const new_consent = await Consent.create(data);
@@ -51,6 +52,19 @@ exports.createConsent = async function(req,res){
     }
 }
 
+exports.getLogbyId = async function(req,res){
+    try{
+        const data = await Log.findAll({where:{
+            'ConsentID' : req.body.ConsentID
+        }})
+
+        res.send({message:'Logs Extracted Successfully',data:data});
+    }catch(err){
+        console.log("Error while retreiving consent details",err);
+        res.send({ error : 'Server Error.Try Again'});
+    }
+}
+
 exports.updateConsent = async function(req,res){
     try{
         const data = {
@@ -59,7 +73,7 @@ exports.updateConsent = async function(req,res){
 
         const result = await Consent.update(data,{
             where : {
-                ConsentID : req.body.ConsentID
+                'ConsentID' : req.body.ConsentID
             }
         });
 
@@ -71,6 +85,11 @@ exports.updateConsent = async function(req,res){
             if(req.body.Status == 'Approved')
             {
                 new_action = 'Consent Approved by approver';
+                await token.sendNotification(result.RequesterAadhar,"Your Consent Approved by landlord");
+            }
+            else if(req.body.Status == 'Rejected')
+            {
+                new_action = 'Consent Rejected by approver';
                 await token.sendNotification(result.RequesterAadhar,"Your Consent Approved by landlord");
             }
             else if(req.body.Status == 'Reviewed')
@@ -99,12 +118,36 @@ exports.updateConsent = async function(req,res){
 exports.getConsentDetails = async function(req,res){
     try{
         const data = await Consent.findAll({where:{
-            [Op.or]:[
-                {RequesterAadhar : req.body.aadhar},
-                {ApproverAadhar : req.body.aadhar}]
+            'RequesterAadhar' : req.body.aadhar
         }})
 
-        res.send(data);
+        res.send({message:'Consent Extracted Successfully',data:data});
+    }catch(err){
+        console.log("Error while retreiving consent details",err);
+        res.send({ error : 'Server Error.Try Again'});
+    }
+}
+
+exports.getConsenttobeApproved = async function(req,res){
+    try{
+        const data = await Consent.findAll({where:{
+            'ApproverAadhar' : req.body.aadhar
+        }})
+
+        res.send({message:'Consent Extracted Successfully',data:data});
+    }catch(err){
+        console.log("Error while retreiving consent details",err);
+        res.send({ error : 'Server Error.Try Again'});
+    }
+}
+
+exports.getConsentbyId = async function(req,res){
+    try{
+        const data = await Consent.findOne({where:{
+            'ConsentID' : req.body.ConsentID
+        }})
+
+        res.send({message:'Consent Extracted Successfully',data:data});
     }catch(err){
         console.log("Error while retreiving consent details",err);
         res.send({ error : 'Server Error.Try Again'});

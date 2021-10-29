@@ -48,7 +48,7 @@ export default function TabNav() {
           })}>
             <Tab.Screen name="Consent" component={DashboardStack} options={{ headerShown: false }} />
             <Tab.Screen name="Notifications" component={NotificationStack} options={{ headerShown: false }} />
-            <Tab.Screen name="myAadhaar" component={MyAadhaar} options={{ headerShown: false }} />
+            <Tab.Screen name="MyAadhaar" component={MyAadhaar} options={{ headerShown: false }} />
         </Tab.Navigator>
       </>
     );

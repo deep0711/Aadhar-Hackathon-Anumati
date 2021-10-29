@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { View } from 'react-native';
 import {Box, 
     Heading, 
@@ -35,7 +35,7 @@ const Description = ({ colors, handleButton }) => (
         </Button>
     </Center>
 );
-const ReviewForm = ({ handleSubmit }) => (
+const ReviewForm = ({ handleSubmit,Country, Dist, LOC, PC, PO, House, State, Vtc, Street, SubDist,OnChange }) => (
     <Box m="10" width="72" > 
         <Heading mb="5">
             Review Details
@@ -45,10 +45,11 @@ const ReviewForm = ({ handleSubmit }) => (
           <FormControl.Label>House/Bldg/Apt</FormControl.Label>
           <Input 
           type="string" 
-          value="12345" 
-          placeholder="option entry" />
+          value={House}
+          onChangeText={text => OnChange(text)} 
+          placeholder={House} />
           <FormControl.HelperText>
-            If any update to be made
+            This field is editable
           </FormControl.HelperText>
         </FormControl>
         <FormControl isDisabled mb="5">
@@ -62,7 +63,7 @@ const ReviewForm = ({ handleSubmit }) => (
             >
               Street/Road/Lane
             </FormControl.Label>
-            <Input placeholder="fetch and show" />
+            <Input placeholder={Street} />
         </FormControl>
         <FormControl isDisabled mb="5">
             <FormControl.Label
@@ -75,7 +76,7 @@ const ReviewForm = ({ handleSubmit }) => (
             >
               Land Mark
             </FormControl.Label>
-            <Input placeholder="landmark" />
+            <Input placeholder={SubDist} />
         </FormControl>
         <FormControl isDisabled mb="5">
             <FormControl.Label
@@ -88,7 +89,7 @@ const ReviewForm = ({ handleSubmit }) => (
             >
               Area/Locality/sector
             </FormControl.Label>
-            <Input placeholder="Area/locality/sector" />
+            <Input placeholder={LOC} />
         </FormControl>
          <FormControl isDisabled mb="5">
             <FormControl.Label
@@ -101,7 +102,7 @@ const ReviewForm = ({ handleSubmit }) => (
             >
               Village/Town/City
             </FormControl.Label>
-            <Input placeholder="village" />
+            <Input placeholder={Vtc} />
         </FormControl>
         <FormControl isDisabled mb="5">
             <FormControl.Label
@@ -114,7 +115,7 @@ const ReviewForm = ({ handleSubmit }) => (
             >
               District
             </FormControl.Label>
-            <Input placeholder="district" />
+            <Input placeholder={Dist} />
         </FormControl>
         <FormControl isDisabled mb="5">
             <FormControl.Label
@@ -127,7 +128,7 @@ const ReviewForm = ({ handleSubmit }) => (
             >
               Post Office
             </FormControl.Label>
-            <Input placeholder="post office" />
+            <Input placeholder={PO} />
         </FormControl>
         <FormControl isDisabled mb="5">
             <FormControl.Label
@@ -140,7 +141,7 @@ const ReviewForm = ({ handleSubmit }) => (
             >
               State
             </FormControl.Label>
-            <Input placeholder="post office" />
+            <Input placeholder={State} />
         </FormControl>
         <FormControl isDisabled mb="5">
             <FormControl.Label
@@ -153,7 +154,7 @@ const ReviewForm = ({ handleSubmit }) => (
             >
               PIN Code
             </FormControl.Label>
-            <Input placeholder="pin code" />
+            <Input placeholder={PC} />
         </FormControl>
         </Box>
         <Button
@@ -166,17 +167,92 @@ const ReviewForm = ({ handleSubmit }) => (
     </Box>
 );
 
-export default function ReviewAddress({ setCurrent }) {
+export default function ReviewAddress({ setCurrent,ConsentID,setHouse,House }) {
     const {colors} = useTheme();
     const [openForm, setOpen] = useState(false);
+    const [country,setCountry] = useState("");
+    const [dist,setDist] = useState("");
+    const [house,setHouseN] = useState("");
+    const [loc,setLOC] = useState("");
+    const [pc,setPC] = useState("");
+    const [po,setPO] = useState("");
+    const [state,setState] = useState("");
+    const [street,setStreet] = useState("");
+    const [subdist,setSubDist] = useState("");
+    const [vtc,setVtc] = useState("");
+   
+    useEffect(() => {
+      fetch('https://anumati.herokuapp.com/anumati-server/get-address',{
+          method:'POST',
+          headers: {
+              'Accept': 'application/json',  // It can be used to overcome cors errors
+              'Content-Type': 'application/json'
+          },
+          body:JSON.stringify({
+              "ConsentID":ConsentID,
+          })
+      }).then(async function(response){
+          response = await response.json();
+          console.log("Address Received is",response);
+          setCountry(response["Country"]);
+          setDist(response["District"]);
+          setHouseN(response["HouseNumber"]);
+          setLOC(response["Area"]);
+          setPC(response["PinCode"]);
+          setPO(response["PostOffice"]);
+          setState(response["State"]);
+          setStreet(response["StreetName"]);
+          setSubDist(response["SubDist"]);
+          setVtc(response["Village"]);   
+      }).catch(err=>console.log(err));
+      
+  }, [])
 
     const handleButton = () => {
         setOpen(true);
     };
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         //post reviewed data 
         console.log("reviewed");
-        setCurrent(3);
+        //Update the DB
+        
+        await fetch('https://anumati.herokuapp.com/anumati-server/update-address',{
+            method:'POST',
+            headers: {
+                'Accept': 'application/json',  // It can be used to overcome cors errors
+                'Content-Type': 'application/json'
+            },
+            body:JSON.stringify({
+                "HouseNumber":house,
+                "ConsentID":ConsentID
+            })
+        }).then(async function(response){
+            response = await response.json();
+            console.log(response["message"]);
+            await fetch('https://anumati.herokuapp.com/anumati-server/update-consent',{
+            method:'POST',
+            headers: {
+                'Accept': 'application/json',  // It can be used to overcome cors errors
+                'Content-Type': 'application/json'
+            },
+            body:JSON.stringify({
+                "Status":"Reviewed",
+                "ConsentID":ConsentID
+            })
+        }).then(async function(response){
+            response = await response.json();
+            console.log(response["message"]);
+            setCurrent(3);   
+        }).catch(err=>console.log(err));   
+        }).catch(err=>console.log(err));
+        
+        
+      
+    }
+    const OnChange = (text) => {
+      console.log("New House is ",text);
+      setHouse(text);
+      setHouseN(text);
     }
 
     return (<View style={{ 
@@ -191,10 +267,23 @@ export default function ReviewAddress({ setCurrent }) {
               }}>
             <Card>
                 { openForm ? <ReviewForm 
-                handleSubmit={ handleSubmit } /> : 
+                handleSubmit={ handleSubmit }
+                Country = {country} 
+                Dist={dist} 
+                LOC={loc} 
+                PC={pc}
+                PO={po}
+                House={house}
+                State={state}
+                Vtc={vtc}
+                Street={street}
+                SubDist={subdist} 
+                OnChange = {OnChange}
+                /> : 
                 <Description
                 colors={colors}
-                handleButton={handleButton} /> }
+                handleButton={handleButton} 
+                /> }
             </Card>   
             </ScrollView>
         </Box>     

@@ -7,7 +7,7 @@ import ApprovalWait from '../ConsentSubScreens/ApprrovalWait';
 import ReviewAddress from '../ConsentSubScreens/ReviewAddress';
 import Verdict
  from '../ConsentSubScreens/Verdict';
-function showCurrentSubScreen(current, setCurrent, navigation) {
+function showCurrentSubScreen(current, setCurrent, navigation,ConsentId,House,setHouse) {
 
     switch(current){
         case 0:
@@ -18,22 +18,35 @@ function showCurrentSubScreen(current, setCurrent, navigation) {
             setCurrent={ setCurrent } />;
         case 2:
             return <ReviewAddress 
-            setCurrent={ setCurrent } />;
+            setCurrent={ setCurrent } 
+            ConsentID = {ConsentId}
+            setHouse = {setHouse}
+            House = {House}
+             />;
         case 3:
             //get success or fail
             return <Verdict 
             setCurrent={ setCurrent }
             navigation={ navigation }
-            success={true} />;
+            ConsentID = {ConsentId}
+            success={true}
+            House = {House}
+            />;
         default:
 
     };
 }
-export default function RequestConsent({ navigation }) {
-    const [current, setCurrent] = useState(0);
+export default function RequestConsent({ navigation,route }) {
+    const [current, setCurrent] = useState(typeof route.params == 'undefined' ? 0:route.params.Screen);
     const { colors } = useTheme();
-    const labels = ["request anumati", "anumati status", "review details", "finish approved"];
+    const [consentId,SetConsentId] = useState(typeof route.params == 'undefined' ? "":route.params.ConsentId);
+    const [ConsentPresent,setPresent] = useState(typeof route.params == 'undefined' ? false :true);
+    const labels = ["Request Anumati", "Anumati Status", "Review Details", "Finish Approved"];
+    const [House,setHouse] = useState("");
     
+    //if(ConsentPresent)
+    //    setCurrent(2);
+
     const indicatorStyle = {
         stepIndicatorSize: 25,
         currentStepIndicatorSize: 30,
@@ -70,11 +83,10 @@ export default function RequestConsent({ navigation }) {
                 currentPosition={current}
                 />
             </Box>
-            
             <View style={{
                 flex: 1, 
                 }}>
-                { showCurrentSubScreen(current, setCurrent, navigation) }
+                { showCurrentSubScreen(current, setCurrent, navigation,consentId,House,setHouse) }
             </View>
         </View>
     );

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { View } from 'react-native';
 import { useTheme, 
     Center,
@@ -11,8 +11,10 @@ import { useTheme,
     WarningOutlineIcon,
     Input
 } from 'native-base';
+import { useToast } from 'native-base';
 import Card from '../../Components/Card';
 import { FontAwesome } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Description = ({ handleButton }) => (
     <Box m="7" width="100%">
@@ -40,7 +42,7 @@ const Description = ({ handleButton }) => (
     </Box>
 );
 
-const ConsentForm = ({ aadhar, handleChange, handleSubmit }) => {
+const ConsentForm = ({setAadhar, handleSubmit,loading }) => {
     
     return ( <Box m="7" w="100%" >
                 <Heading mb="10">
@@ -53,13 +55,22 @@ const ConsentForm = ({ aadhar, handleChange, handleSubmit }) => {
                     <Input 
                     keyboardType="numeric"
                     size="xl"
-                    value={aadhar} 
-                    onChange={ handleChange }
-                    placeholder="enter the Aadhar number here"/>
+                    onChangeText={text => setAadhar(text)}
+                    placeholder="Enter the Aadhar number here"/>
                     <FormControl.HelperText>
-                        Must be 16 digit.
+                        Must be 12 digit
                     </FormControl.HelperText>
                 </FormControl>
+                {loading ?<Button
+                mt="5"
+                size="lg"
+                colorScheme="secondary">
+                    <Heading 
+                    size="md"
+                    color="white">
+                        Sending...
+                    </Heading>
+                </Button> :
                 <Button
                 onPress={handleSubmit}
                 mt="5"
@@ -70,24 +81,79 @@ const ConsentForm = ({ aadhar, handleChange, handleSubmit }) => {
                     color="white">
                         Send Consent
                     </Heading>
-                </Button>
+                </Button>}
             </Box> );
     }
 
 export default function NewConsentReq({ setCurrent }) {
     const [openForm, setOpen ] = useState(false);
-    const [aadhar, setAadhar] = useState('');
+    const [aadhar, setAadhar] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [RequesterAadhar,setRequesterAadhar] = useState('');
+    const [RequesterName, setRequesterName] = useState('');
+    const toast = useToast();
+    
+    
+    useEffect(() => {
+        const fetchAadhar = async () => {
+            const aadharNo = await AsyncStorage.getItem('aAdharNumber');
+            const Name = await AsyncStorage.getItem('name');
+            setRequesterAadhar(aadharNo);
+            setRequesterName(Name);
+        }
+        fetchAadhar();
+    }, [])
 
     const handleButton = () => {
         setOpen(true);
     };
-    const handleChange = (event) => {
-        setAadhar(event.target.value);
-    };
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
+        setLoading(true);
+        //console.log("Approver Aadhar is",aadhar);
         //post reqest Aadhar number
-        console.log("submit form ");
-        setCurrent(1);
+        
+        fetch('https://anumati.herokuapp.com/anumati-server/create-consent',{
+            method:'POST',
+            headers: {
+                'Accept': 'application/json',  // It can be used to overcome cors errors
+                'Content-Type': 'application/json'
+            },
+            body:JSON.stringify({
+                "RequesterAadhar":RequesterAadhar,
+                "ApproverAadhar":aadhar,
+                "Status":"Pending",
+                "attachment":"",
+                "RequesterName":RequesterName
+            })
+        }).then(async function(response){
+            //console.log("New Consent Response is ",response);
+            response = await response.json();
+            console.log("New Consent Response is ",response);
+            
+            if(response["message"] ==='Consent Generated Successfully')
+            {
+                console.log("Consent Generated Successfully,",response["ID"]);
+                await AsyncStorage.setItem('RequestInProgress','true');
+                
+                toast.show({
+                    title: "Consent Generated Successfully",
+                    status: "success",
+                    duration: 3000,
+                    variant: "outline-light"
+                });
+                setLoading(false);
+                setCurrent(1);
+            }else{
+                toast.show({
+                    title: "Please try again",
+                    status: "error",
+                    duration: 3000,
+                    variant: "outline-light"
+                });
+                setLoading(false);
+            }
+        }).catch(err=>console.log(err));
+        
     };
 
     return <View 
@@ -98,9 +164,9 @@ export default function NewConsentReq({ setCurrent }) {
         }}>
             <Card>
                 { openForm ? <ConsentForm 
-                aadhar={aadhar} 
-                handleChange={ handleChange } 
-                handleSubmit={ handleSubmit } /> : 
+                setAadhar = {setAadhar}
+                handleSubmit={ handleSubmit }
+                loading = {loading} /> : 
                 <Description 
                 handleButton={handleButton} /> }
             </Card>
