@@ -35,7 +35,7 @@ const Description = ({ colors, handleButton }) => (
         </Button>
     </Center>
 );
-const ReviewForm = ({ handleSubmit,Country, Dist, LOC, PC, PO, House, State, Vtc, Street, SubDist,OnChange }) => (
+const ReviewForm = ({ handleSubmit,Country, Dist, LOC, PC, PO, House, State, Vtc, Street, SubDist,OnChange,loading }) => (
     <Box m="10" width="72" > 
         <Heading mb="5">
             Review Details
@@ -157,13 +157,19 @@ const ReviewForm = ({ handleSubmit,Country, Dist, LOC, PC, PO, House, State, Vtc
             <Input placeholder={PC} />
         </FormControl>
         </Box>
+        {loading ? <Button
+        mb="10"
+        size="lg"
+        colorScheme="grey">
+            Submitting...
+        </Button> : 
         <Button
         onPress={ handleSubmit }
         mb="10"
         size="lg"
         colorScheme="secondary">
             Reviewed
-        </Button>
+        </Button>}
     </Box>
 );
 
@@ -180,6 +186,7 @@ export default function ReviewAddress({ setCurrent,ConsentID,setHouse,House }) {
     const [street,setStreet] = useState("");
     const [subdist,setSubDist] = useState("");
     const [vtc,setVtc] = useState("");
+    const [loading,setLoading] = useState(false);
    
     useEffect(() => {
       fetch('https://anumati.herokuapp.com/anumati-server/get-address',{
@@ -213,6 +220,7 @@ export default function ReviewAddress({ setCurrent,ConsentID,setHouse,House }) {
     };
     const handleSubmit = async () => {
         //post reviewed data 
+        setLoading(true);
         console.log("reviewed");
         //Update the DB
         
@@ -242,6 +250,7 @@ export default function ReviewAddress({ setCurrent,ConsentID,setHouse,House }) {
         }).then(async function(response){
             response = await response.json();
             console.log(response["message"]);
+            setLoading(false);
             setCurrent(3);   
         }).catch(err=>console.log(err));   
         }).catch(err=>console.log(err));
@@ -279,6 +288,7 @@ export default function ReviewAddress({ setCurrent,ConsentID,setHouse,House }) {
                 Street={street}
                 SubDist={subdist} 
                 OnChange = {OnChange}
+                loading = {loading}
                 /> : 
                 <Description
                 colors={colors}

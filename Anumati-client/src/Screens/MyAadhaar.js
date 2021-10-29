@@ -15,7 +15,7 @@ const AadhaarFront = ({ colors,photo, name, aadharNo, DOB, Gen}) => (
         width="80"
         height="64"
         rounded="lg"
-        bgColor="#F7BA0A"
+        bgColor="secondary.400"
         >
             <Center flex={1} flexDirection="column" p="5">
                 <Heading size="md">
@@ -33,6 +33,7 @@ const AadhaarFront = ({ colors,photo, name, aadharNo, DOB, Gen}) => (
                     }}
                     alt="profile image"
                     size="md"
+                    borderRadius={100}
                     />
                     <Box
                     ml="5"
@@ -56,7 +57,7 @@ const AadhaarBack = ({ colors,aadharNo, Country, Dist, LOC, PC, PO, House, State
         width="80"
         height="64"
         rounded="lg"
-        bgColor="#F7BA0A"
+        bgColor="secondary.400"
         >
             <Center flex={1} flexDirection="column" p="5">
                 <Heading size="md" textAlign="center">

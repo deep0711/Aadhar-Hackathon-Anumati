@@ -5,6 +5,7 @@ import { FontAwesome , Zocial} from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
 import ServiceBtn from '../../Components/ServiceBtn';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Loader from '../Loader';
 
 const AadhaarPreview = ({photo,name,aadharNo}) => (
         <Box
@@ -94,7 +95,7 @@ export default function Dashboard({navigation}) {
                 const consentArrayLength = response["data"].length;
                 if(consentArrayLength !== 0) {
                     const item = response["data"][consentArrayLength - 1];
-                    response["data"][consentArrayLength - 1]["Status"] === "Pending" ? 
+                    response["data"][consentArrayLength - 1]["Status"] !== "Approved" ? 
                     navigation.navigate("Consent Logs",{ ConsentId : item["ConsentID"] })
                     :
                     navigation.navigate("Request-Consent",{ConsentId : item["ConsentID"],Screen:2})
@@ -110,16 +111,17 @@ export default function Dashboard({navigation}) {
 
     useEffect(() => {
         loadData();
-    }, [RequestInProgress])
+    }, [RequestInProgress,aadhar])
     
     const { colors } = useTheme();
-    const onRefresh = React.useCallback(() => {
+    const onRefresh = React.useCallback(async () => {
         setRefreshing(true);
+        setRequest(await AsyncStorage.getItem('RequestInProgress'));
         wait(2000).then(() => setRefreshing(false));
       }, []);
     if(count==0){
         return(
-            <></>
+            <Loader/>
         )
     }
     return (

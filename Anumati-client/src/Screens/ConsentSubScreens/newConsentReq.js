@@ -145,7 +145,7 @@ export default function NewConsentReq({ setCurrent }) {
                 setCurrent(1);
             }else{
                 toast.show({
-                    title: "Please try again",
+                    title: response["error"],
                     status: "error",
                     duration: 3000,
                     variant: "outline-light"

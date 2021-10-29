@@ -1,6 +1,6 @@
 import React,{useState,useEffect} from 'react'
-import { View, Text, FlatList, TouchableOpacity } from 'react-native'
-import { Box, Heading, useTheme } from 'native-base';
+import { View, Text, FlatList, TouchableOpacity,RefreshControl,SafeAreaView,StyleSheet } from 'react-native'
+import { Box, Heading, ScrollView, useTheme } from 'native-base';
 import { FontAwesome,AntDesign,Foundation,Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Card from '../Components/Card';
@@ -36,11 +36,15 @@ const NotificationCard = ({ colors, navigation,Requester,ConsentId,created_At,Na
         </TouchableOpacity>
 );
 
+const wait = (timeout) => {
+    return new Promise(resolve => setTimeout(resolve, timeout));
+}
 export default function Notifications({ navigation }) {
     const { colors } = useTheme();
     const [aadharNo,setAadharNo] = useState('');
     const [dataList,setDataList] = useState([]);
     const [count,setCount] = useState(0);
+    const [refreshing, setRefreshing] = useState(false);
     
     const getAadhar = async () =>{
         AsyncStorage.getItem('aAdharNumber').then((result)=>{
@@ -70,7 +74,18 @@ export default function Notifications({ navigation }) {
         }).catch(err=>console.log(err));
     }
 
+    const onRefresh = React.useCallback(() => {
+        setRefreshing(true);
+        if(aadharNo === ''){
+            getAadhar();
+        }else{
+            getConsent();
+        }
+        wait(2000).then(() => setRefreshing(false));
+    }, []);
+
     useEffect(() => {
+        console.log("Hellow World");
         if(aadharNo === ''){
             getAadhar();
         }else{
@@ -85,30 +100,44 @@ export default function Notifications({ navigation }) {
 
     }else{
         return (
-            <Box  flex={1} alignItems="center" py="3">{dataList.length == 0 ?
-                <Card 
-                    borderRadius="lg">
-                    <Heading m="10">
-                        No Notifications
-                    </Heading>
-                </Card> :
-                <FlatList 
-                data={dataList}
-                keyExtractor={ item => item.ConsentID }
-                renderItem={ ({item})=>{
-                return(
-                <NotificationCard 
-                    colors={colors}
-                    navigation={navigation}
-                    Requester = {item.RequesterAadhar}
-                    ConsentId = {item.ConsentID}
-                    created_At = {item.createdAt}
-                    Name = {item.RequesterName}
-                    status = {item.Status}
+            <SafeAreaView style={styles.container}>
+                <ScrollView refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
                     />
-                )}}/>}
-            </Box>
+                }>
+                    <Box flex={1} alignItems="center" py="3">{dataList.length == 0 ?
+                        <Card 
+                            borderRadius="lg">
+                            <Heading m="10">
+                                No Notifications
+                            </Heading>
+                        </Card> :
+                        <FlatList 
+                        data={dataList}
+                        keyExtractor={ item => item.ConsentID }
+                        renderItem={ ({item})=>{
+                        return(
+                        <NotificationCard 
+                            colors={colors}
+                            navigation={navigation}
+                            Requester = {item.RequesterAadhar}
+                            ConsentId = {item.ConsentID}
+                            created_At = {item.createdAt}
+                            Name = {item.RequesterName}
+                            status = {item.Status}
+                            />
+                        )}}/>}
+                    </Box>
+                </ScrollView>
+            </SafeAreaView>    
         )
     }    
 }
 
+const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+    }
+})    

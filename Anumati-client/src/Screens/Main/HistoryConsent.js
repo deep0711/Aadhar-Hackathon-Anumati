@@ -1,6 +1,6 @@
 import React, { useState,useEffect } from 'react';
-import { Text, TouchableOpacity, FlatList } from 'react-native';
-import { Box, Heading } from 'native-base';
+import { Text, TouchableOpacity, FlatList,RefreshControl,SafeAreaView,StyleSheet } from 'react-native';
+import { Box, Heading,ScrollView } from 'native-base';
 import Card from '../../Components/Card';
 import { FontAwesome } from '@expo/vector-icons';
 import { Foundation,AntDesign,Ionicons } from '@expo/vector-icons';
@@ -43,11 +43,16 @@ const HistoryList = ({ colors, dataList, navigation }) => {
     </Box>
 }
 
+const wait = (timeout) => {
+    return new Promise(resolve => setTimeout(resolve, timeout));
+}
 export default function HistoryConsent({ navigation }) {
     
     const [aadharNo,setAadharNo] = useState('');
     const [dataList,setDataList] = useState();
     const [count,setCount] = useState(0);
+    const [refreshing, setRefreshing] = useState(false);
+    
     
     const getAadhar = async() => {
         AsyncStorage.getItem('aAdharNumber').then((result) => {
@@ -80,7 +85,7 @@ export default function HistoryConsent({ navigation }) {
 
                         if(cnt == 0)
                         {
-                            console.log("New COnsent is Allowed");
+                            console.log("New Consent is Allowed");
                             await AsyncStorage.setItem('RequestInProgress','false');
                         }
                         setCount(1);   
@@ -98,6 +103,16 @@ export default function HistoryConsent({ navigation }) {
         }
     }, [aadharNo])
     
+    const onRefresh = React.useCallback(() => {
+        setRefreshing(true);
+        if(aadharNo === ''){
+            getAadhar();
+        }else{
+            getDetails();
+        }
+        wait(2000).then(() => setRefreshing(false));
+    }, []);
+
     const { colors } = useTheme();
 
     if(count == 0)
@@ -106,24 +121,39 @@ export default function HistoryConsent({ navigation }) {
         )
     else if(count == 1){      
     return (
-        <Box 
-        flex="1" 
-        justifyContent="center"
-        alignItems="center" >
-            {
-                dataList.length==0 ? 
-                <Card 
-                borderRadius="lg">
-                <Heading m="10">
-                    No Consent
-                </Heading>
-                </Card> :
-                <HistoryList 
-                navigation={navigation}
-                colors={colors} 
-                dataList={ dataList } />
-            }
-        </Box>
+        <SafeAreaView style={styles.container}>
+                <ScrollView refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                    />
+                }>
+                <Box 
+                flex="1" 
+                justifyContent="center"
+                alignItems="center" >
+                    {
+                        dataList.length==0 ? 
+                        <Card 
+                        borderRadius="lg">
+                        <Heading m="10">
+                            No Consent
+                        </Heading>
+                        </Card> :
+                        <HistoryList 
+                        navigation={navigation}
+                        colors={colors} 
+                        dataList={ dataList } />
+                    }
+                </Box>
+                </ScrollView>
+            </SafeAreaView>    
     );
     }
 }
+
+const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+    }
+})    

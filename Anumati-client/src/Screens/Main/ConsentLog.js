@@ -2,6 +2,7 @@ import React, { useState,useEffect } from 'react';
 import { Box, Center, Heading, Text, useTheme } from 'native-base';
 import Card from '../../Components/Card';
 import { FontAwesome,MaterialIcons } from '@expo/vector-icons';
+import Loader from '../Loader';
 
 const SuccessLog = ({ colors,status,isRequested, isApproved, isReviewed, RequestDate, ApprovedDate, ReviewedDate, isRejected, RejectedDate }) => (
     <Box flex={1} width="full" 
@@ -184,6 +185,7 @@ export default function ConsentLog({navigation,route}) {
     const [ApprovedDate,setApprovedDate] = useState("");
     const [ReviewedDate,setReviewedDate] = useState("");
     const [RejectedDate,setRejectedDate] = useState("");
+    const [count,setCount] = useState(0);
 
     useEffect(() => {
         fetch('https://anumati.herokuapp.com/anumati-server/get-logs-by-id',{
@@ -216,6 +218,8 @@ export default function ConsentLog({navigation,route}) {
                         setRejectedDate(item.createdAt);
                     }
                 })
+
+                setCount(1);
             }
         }).catch(err=>console.log(err));
         
@@ -223,32 +227,40 @@ export default function ConsentLog({navigation,route}) {
     
     const { colors } = useTheme();
 
-    return <Box flex={1} >
-        
-        {/*Show the status on SuccessLog*/}
-        <SuccessLog colors={colors} status={status} isRequested={isRequested} isApproved={isApproved} isReviewed={isReviewed} RequestDate={RequestDate} ApprovedDate={ApprovedDate} ReviewedDate={ReviewedDate} isRejected={isRejected} RejectedDate={RejectedDate} />
-        
-        {isReviewed ? <Box 
-            mx="5"
-            justifyContent="center"
-            alignItems="center"
-            bgColor="white" 
-            my="5"
-            borderRadius="md">
-                <Heading onPress={() => {navigation.navigate("Request-Consent",{ConsentId:route.params.ConsentId,Screen:3})}} my="5" color="muted.600">
-                    Print your Consent form
-                </Heading>
-        </Box> :<Box 
-            mx="5"
-            justifyContent="center"
-            alignItems="center"
-            bgColor="white" 
-            my="5"
-            borderRadius="md">
-                <Heading my="5" color="muted.600">
-                    
-                </Heading>
-        </Box>} 
-        
-    </Box>
+    if(count==0){
+        return(
+            <Loader/>
+        )
+    }else{
+
+        return <Box flex={1} >
+            
+            {/*Show the status on SuccessLog*/}
+            <SuccessLog colors={colors} status={status} isRequested={isRequested} isApproved={isApproved} isReviewed={isReviewed} RequestDate={RequestDate} ApprovedDate={ApprovedDate} ReviewedDate={ReviewedDate} isRejected={isRejected} RejectedDate={RejectedDate} />
+            
+            {isReviewed ? <Box 
+                mx="5"
+                justifyContent="center"
+                alignItems="center"
+                bgColor="white" 
+                my="5"
+                borderRadius="md">
+                    <Heading onPress={() => {navigation.navigate("Request-Consent",{ConsentId:route.params.ConsentId,Screen:3})}} my="5" color="muted.600">
+                        Print your Consent form
+                    </Heading>
+            </Box> : (isRejected ? <Box 
+                    mx="5"
+                    justifyContent="center"
+                    alignItems="center"
+                    bgColor="white" 
+                    my="5"
+                    borderRadius="md">
+                        <Heading onPress={()=>{navigation.navigate('Request-Consent')}} my="5" color="muted.600">
+                            Start New Consent   
+                        </Heading>
+                    </Box>:<></>)
+            } 
+            
+        </Box>
+    }    
 }

@@ -1,6 +1,7 @@
 require('dotenv').config();
 
 const Consent = require('../models').Consent;
+const Token = require('../models').Token;
 const token = require('../Controller/token_control');
 const Log = require('../models').Log;
 const { Op } = require("sequelize");
@@ -30,6 +31,15 @@ exports.createConsent = async function(req,res){
             RequesterName:req.body.RequesterName
         }
 
+        const isPresent = await Token.findOne({where:{
+            Aadhar:req.body.ApproverAadhar
+        }})
+
+        if(isPresent == null)
+        {
+            res.send({ error : 'No Such Aadhar Exist'});
+            return;
+        }
         const new_consent = await Consent.create(data);
         console.log("Inserted Data is",new_consent);
 
@@ -77,6 +87,7 @@ exports.updateConsent = async function(req,res){
             }})
             
             let new_action;
+            
             if(req.body.Status == 'Approved')
             {
                 new_action = 'Consent Approved by approver';
