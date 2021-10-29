@@ -173,79 +173,88 @@ function RegistrationScreen( props ) {
                         "filename" : fileName
                     })
                 }).then(async (response) => {
-
-                    response = await response.json();
-                    response = await JSON.parse(response);
-                    const data = response;
-                    console.log("Unzip Data is ",data);
-                    if(typeof response["error"] == 'undefined')
-                    {
-                        const poi = data['OfflinePaperlessKyc']['UidData']['Poi'];
-                        await AsyncStorage.setItem("dob",poi['dob']);
-                        await AsyncStorage.setItem("gender",poi['gender']);
-                        await AsyncStorage.setItem("name",poi['name']);
-                        
-                        const poa = data['OfflinePaperlessKyc']['UidData']['Poa'];
-
-                        await AsyncStorage.setItem('country',poa['country']);
-                        await AsyncStorage.setItem('dist',poa['dist']);
-                        await AsyncStorage.setItem('house',poa['house']);
-                        await AsyncStorage.setItem('landmark',poa['landmark']);
-                        await AsyncStorage.setItem('loc',poa['loc']);
-                        await AsyncStorage.setItem('pc',poa['pc']);
-                        await AsyncStorage.setItem('po',poa['po']);
-                        await AsyncStorage.setItem('state',poa['state']);
-                        await AsyncStorage.setItem('street',poa['street']);
-                        await AsyncStorage.setItem('subdist',poa['subdist']);
-                        await AsyncStorage.setItem('vtc',poa['vtc']);
-
-                        const photo = data['OfflinePaperlessKyc']['UidData']['Pht'];
-
-                        await AsyncStorage.setItem('photo',photo);
-
-                        toast.show({
-                            title: "Login Succesful",
-                            status: "success",
-                            duration: 3000,
-                            variant: "outline-light"
-                        });
-                        
-                        //Storing Token for Push Notification
-                        
-                        const token = await AsyncStorage.getItem('ExpoToken');
-                        console.log(token);
-
-                        fetch('https://anumati.herokuapp.com/anumati-server/store-token',{
-                            method:'POST',
-                            headers: {
-                                'Accept': 'application/json',  // It can be used to overcome cors errors
-                                'Content-Type': 'application/json'
-                            },
-                            body:JSON.stringify({
-                                "aadhar" :aadharNo,
-                                "token" : token
-                            })
-                        }).then(async function(tokenresponse){
-                            tokenresponse = await tokenresponse.json();
-                            console.log("Toke REsponse:",tokenresponse["message"]);
+                    try{
+                        response = await response.json();
+                        response = await JSON.parse(response);
+                        const data = response;
+                        //console.log("Unzip Data is ",data);
+                        //console.log("Hello ",data.OfflinePaperlessKyc)
+                        if(typeof response["error"] == 'undefined')
+                        {
+                            const poi = data['OfflinePaperlessKyc']['UidData']['Poi'];
+                            await AsyncStorage.setItem("dob",poi['dob']);
+                            await AsyncStorage.setItem("gender",poi['gender']);
+                            await AsyncStorage.setItem("name",poi['name']);
                             
-                            setIsLoading(false);
+                            const poa = data['OfflinePaperlessKyc']['UidData']['Poa'];
 
-                            props.navigation.navigate('CreatePIN');
-                        }).catch((err) => {console.log(err);setIsLoading(false);});
-                    }else{
+                            await AsyncStorage.setItem('country',poa['country']);
+                            await AsyncStorage.setItem('dist',poa['dist']);
+                            await AsyncStorage.setItem('house',poa['house']);
+                            await AsyncStorage.setItem('landmark',poa['landmark']);
+                            await AsyncStorage.setItem('loc',poa['loc']);
+                            await AsyncStorage.setItem('pc',poa['pc']);
+                            await AsyncStorage.setItem('po',poa['po']);
+                            await AsyncStorage.setItem('state',poa['state']);
+                            await AsyncStorage.setItem('street',poa['street']);
+                            await AsyncStorage.setItem('subdist',poa['subdist']);
+                            await AsyncStorage.setItem('vtc',poa['vtc']);
+
+                            const photo = data['OfflinePaperlessKyc']['UidData']['Pht'];
+
+                            await AsyncStorage.setItem('photo',photo);
+
+                            toast.show({
+                                title: "Login Succesful",
+                                status: "success",
+                                duration: 3000,
+                                variant: "outline-light"
+                            });
+                            
+                            //Storing Token for Push Notification
+                            
+                            const token = await AsyncStorage.getItem('ExpoToken');
+                            console.log(token);
+
+                            fetch('https://anumati.herokuapp.com/anumati-server/store-token',{
+                                method:'POST',
+                                headers: {
+                                    'Accept': 'application/json',  // It can be used to overcome cors errors
+                                    'Content-Type': 'application/json'
+                                },
+                                body:JSON.stringify({
+                                    "aadhar" :aadharNo,
+                                    "token" : token
+                                })
+                            }).then(async function(tokenresponse){
+                                tokenresponse = await tokenresponse.json();
+                                console.log("Toke REsponse:",tokenresponse["message"]);
+                                
+                                setIsLoading(false);
+
+                                props.navigation.navigate('CreatePIN');
+                            }).catch((err) => {console.log(err);setIsLoading(false);});
+                        }else{
+                            toast.show({
+                                title: "Data Fetching Failed.Please Try again",
+                                status: "error",
+                                duration: 3000,
+                                variant: "outline-light"
+                            });
+                            props.navigation.reset({
+                                index: 0,
+                                routes: [{ name: 'Registration'}]
+                            });
+                            setIsLoading(false);
+                        }
+                    }catch(err){
                         toast.show({
-                            title: "Data Fetching Failed.Please Try again",
+                            title: "Server Error.Please Try again",
                             status: "error",
                             duration: 3000,
                             variant: "outline-light"
                         });
-                        props.navigation.reset({
-                            index: 0,
-                            routes: [{ name: 'Registration'}]
-                        });
-                        setIsLoading(false);
-                    }
+                    }    
                 })        
             }else{
                 toast.show({
@@ -303,7 +312,7 @@ function RegistrationScreen( props ) {
                     />
                     <Button 
                     isLoading={isLoading} 
-                    isLoadingText="..." 
+                    isLoadingText="" 
                     style={{marginTop: 15 , marginLeft: 15 , marginRight: 15}}
                     onPress={() => OTPSubmit()}
                     >
@@ -311,7 +320,7 @@ function RegistrationScreen( props ) {
                     </Button></>: 
                     <Button 
                         isLoading={isLoading} 
-                        isLoadingText="..." 
+                        isLoadingText="" 
                         style={{marginTop: 15 , marginLeft: 15 , marginRight: 15}}
                         onPress={() => handleSubmit()}
                     >
