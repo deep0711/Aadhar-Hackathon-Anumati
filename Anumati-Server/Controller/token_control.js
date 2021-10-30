@@ -57,6 +57,23 @@ exports.sendNotification = async function(aadhar,status){
                 'body':status
             })
         }).then(function(response){
+            axios({
+                method:'post',
+                url:'https://exp.host/--/api/v2/push/send',
+                headers:{
+                    'host': 'exp.host',
+                    'accept': 'application/json',
+                    'accept-encoding': 'gzip, deflate',
+                    'content-type': 'application/json'
+                },
+                data:JSON.stringify({
+                    'to':data.Token,
+                    'title':'Anumati',
+                    'body':status
+                })
+            }).then(function(response){
+                console.log("Notification Sending Response2 is ",response.status,response.data);
+            })
             console.log("Notification Sending Response is ",response.status,response.data);
         })
         

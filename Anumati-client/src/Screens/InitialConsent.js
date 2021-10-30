@@ -35,7 +35,7 @@ const InitialConsent = ( props ) => {
                         onPress={() => {
                             props.navigation.reset({
                                 index: 0,
-                                routes: [{ name: 'Registration'}]
+                                routes: [{ name: 'MobileRegistration'}]
                             });
                         }}
                     > I Consent </Button>

@@ -15,6 +15,7 @@
     "@react-navigation/native-stack": "^6.2.5",
     "eslint-plugin-react-hooks": "^4.2.0",
     "expo": "~42.0.1",
+    "expo-location": "~12.1.2",
     "expo-notifications": "~0.12.3",
     "expo-status-bar": "~1.0.4",
     "jszip": "^3.7.1",
@@ -24,6 +25,7 @@
     "react-dom": "16.13.1",
     "react-native": "https://github.com/expo/react-native/archive/sdk-42.0.0.tar.gz",
     "react-native-base64": "^0.2.1",
+    "react-native-communications": "^2.2.1",
     "react-native-confirmation-code-field": "^7.1.0",
     "react-native-dotenv": "^3.2.0",
     "react-native-gesture-handler": "^1.10.3",
@@ -32,6 +34,7 @@
     "react-native-reanimated": "^2.2.3",
     "react-native-safe-area-context": "3.2.0",
     "react-native-screens": "^3.8.0",
+    "react-native-sms": "^1.11.0",
     "react-native-snap-carousel": "^3.9.1",
     "react-native-step-indicator": "^1.0.3",
     "react-native-svg": "^12.1.1",
@@ -44,8 +47,7 @@
     "styled-system": "^5.1.5",
     "uuid": "^3.4.0",
     "uuidv4": "^6.2.12",
-    "zlib": "^1.0.5",
-    "expo-location": "~12.1.2"
+    "zlib": "^1.0.5"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0"

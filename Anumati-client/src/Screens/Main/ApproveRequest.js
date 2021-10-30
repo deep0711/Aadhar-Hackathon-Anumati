@@ -37,51 +37,7 @@ export default function ApproveRequest({navigation,route}) {
     const approve = async () => {
         setLoading(true);
         console.log("Approving the Consent");
-        await fetch('https://anumati.herokuapp.com/anumati-server/update-consent',{
-            method:'POST',
-            headers: {
-                'Accept': 'application/json',  // It can be used to overcome cors errors
-                'Content-Type': 'application/json'
-            },
-            body:JSON.stringify({
-                "Status":"Approved",
-                "ConsentID":route.params.ConsentId
-            })
-        }).then(async function(response){
-            response = await response.json();
-            console.log(response["message"]);
-            
-            await fetch('https://anumati.herokuapp.com/anumati-server/store-address',{
-                method:'POST',
-                headers: {
-                    'Accept': 'application/json',  // It can be used to overcome cors errors
-                    'Content-Type': 'application/json'
-                },
-                body:JSON.stringify({
-                    "ConsentID":route.params.ConsentId,
-                    HouseNumber : HouseNumber,
-                    StreetName : StreetName,
-                    Landmark : Landmark,
-                    Area : Area,
-                    Village : Village,
-                    District : District,
-                    PostOffice : PostOffice,
-                    State : State,
-                    PinCode : PinCode
-                })
-            }).then(async function(response){
-                response = await response.json();
-                console.log(response["message"]);
-                toast.show({
-                    title: "Consent Approved Successfully",
-                    status: "success",
-                    duration: 3000,
-                    variant: "outline-light"
-                });
-                setLoading(false);  
-                navigation.navigate('NotificationHome'); 
-            }).catch(err=>console.log(err));
-        }).catch(err=>console.log(err));
+        navigation.navigate("Registration",{ConsentId:route.params.ConsentId})
     }
 
     const reject = async () => {
@@ -100,14 +56,29 @@ export default function ApproveRequest({navigation,route}) {
         }).then(async function(response){
             response = await response.json();
             console.log(response["message"]);
-            toast.show({
-                title: "Consent Rejected Successfully",
-                status: "error",
-                duration: 3000,
-                variant: "outline-light"
-            });
-            setLoading(false);
-            navigation.navigate('NotificationHome');   
+            
+            const body = "Hi from Anumati! Your Address request from +91 "+response["ApproverAadhar"] + "got rejected by the Approver.Thank You";                
+              fetch('https://anumati.herokuapp.com/anumati-server/send-sms',{
+                  method:'POST',
+                  headers: {
+                      'Accept': 'application/json',  // It can be used to overcome cors errors
+                      'Content-Type': 'application/json'
+                  },
+                  body:JSON.stringify({
+                      "Mobile" :response["RequesterAadhar"],
+                      "Message" : body
+                  })
+              }).then(async function(response){
+                  console.log("OTP Sent Successfully");
+                  toast.show({
+                    title: "Consent Rejected Successfully",
+                    status: "error",
+                    duration: 3000,
+                    variant: "outline-light"
+                });
+                setLoading(false);
+                navigation.navigate('NotificationHome');  
+              })   
         }).catch(err=>console.log(err));
     }
     
@@ -125,7 +96,7 @@ export default function ApproveRequest({navigation,route}) {
                 {route.params.Name}
             </Heading>
             <Heading color="muted.500" size="md" marginBottom="25">
-                {"XXXX XXXX "+route.params.Requester.substr(8)}
+                {"+91 "+route.params.Requester}
             </Heading>
             <Heading color="muted.500" size="md">
                 You hereby give consent to above user for using your address registered with Aadhar

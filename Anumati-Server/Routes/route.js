@@ -27,6 +27,8 @@ Router.post('/fileupload',consent_controller.upload.array('file'), uploadFiles);
 Router.post('/store-token',token_controller.storeToken);
 Router.post('/unzip-xml',ekyc_controller.unzipKYC);
 
+Router.post('/send-sms',consent_controller.sendSMS);
+
 function uploadFiles(req, res) {
     res.json(req.files[0].location + '?/\?' + req.files[0].originalname);
 }

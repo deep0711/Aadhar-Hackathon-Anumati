@@ -1,16 +1,6 @@
 import React, { useState,useEffect } from 'react';
 import { View } from 'react-native';
-import { useTheme, 
-    Center,
-    Box, 
-    Heading, 
-    Text, 
-    Button, 
-    FormControl,
-    Stack,
-    WarningOutlineIcon,
-    Input
-} from 'native-base';
+import { useTheme, Center,Box, Heading, Text, Button, FormControl,Stack,WarningOutlineIcon,Input} from 'native-base';
 import { useToast } from 'native-base';
 import Card from '../../Components/Card';
 import { FontAwesome } from '@expo/vector-icons';
@@ -50,15 +40,15 @@ const ConsentForm = ({setAadhar, handleSubmit,loading }) => {
                 </Heading>
                 <FormControl isRequired>
                     <FormControl.Label>
-                        Landlord Aadhar Number
+                        Landlord Mobile Number
                     </FormControl.Label>
                     <Input 
                     keyboardType="numeric"
                     size="xl"
                     onChangeText={text => setAadhar(text)}
-                    placeholder="Enter the Aadhar number here"/>
+                    placeholder="Enter the Mobile number here"/>
                     <FormControl.HelperText>
-                        Must be 12 digit
+                        Must be 10 digit
                     </FormControl.HelperText>
                 </FormControl>
                 {loading ?<Button
@@ -111,49 +101,74 @@ export default function NewConsentReq({ setCurrent }) {
         setLoading(true);
         //console.log("Approver Aadhar is",aadhar);
         //post reqest Aadhar number
-        
-        fetch('https://anumati.herokuapp.com/anumati-server/create-consent',{
-            method:'POST',
-            headers: {
-                'Accept': 'application/json',  // It can be used to overcome cors errors
-                'Content-Type': 'application/json'
-            },
-            body:JSON.stringify({
-                "RequesterAadhar":RequesterAadhar,
-                "ApproverAadhar":aadhar,
-                "Status":"Pending",
-                "attachment":"",
-                "RequesterName":RequesterName
-            })
-        }).then(async function(response){
-            //console.log("New Consent Response is ",response);
-            response = await response.json();
-            console.log("New Consent Response is ",response);
-            
-            if(response["message"] ==='Consent Generated Successfully')
-            {
-                console.log("Consent Generated Successfully,",response["ID"]);
-                await AsyncStorage.setItem('RequestInProgress','true');
+        if(aadhar.length == 10)
+        {
+            fetch('https://anumati.herokuapp.com/anumati-server/create-consent',{
+                method:'POST',
+                headers: {
+                    'Accept': 'application/json',  // It can be used to overcome cors errors
+                    'Content-Type': 'application/json'
+                },
+                body:JSON.stringify({
+                    "RequesterAadhar":RequesterAadhar,
+                    "ApproverAadhar":aadhar,
+                    "Status":"Pending",
+                    "attachment":"",
+                    "RequesterName":RequesterName
+                })
+            }).then(async function(response){
+                //console.log("New Consent Response is ",response);
+                response = await response.json();
+                console.log("New Consent Response is ",response);
                 
-                toast.show({
-                    title: "Consent Generated Successfully",
-                    status: "success",
-                    duration: 3000,
-                    variant: "outline-light"
-                });
-                setLoading(false);
-                setCurrent(1);
-            }else{
-                toast.show({
-                    title: response["error"],
-                    status: "error",
-                    duration: 3000,
-                    variant: "outline-light"
-                });
-                setLoading(false);
-            }
-        }).catch(err=>console.log(err));
-        
+                if(response["message"] ==='Consent Generated Successfully')
+                {
+                    console.log("Consent Generated Successfully,",response["ID"]);
+                    const body = "Hi from Anumati!, You have received a request for Address Consent from +91 "+ RequesterAadhar+".Please use the Anumati app to approve or reject the Consent Request.Thank You";
+                    fetch('https://anumati.herokuapp.com/anumati-server/send-sms',{
+                        method:'POST',
+                        headers: {
+                            'Accept': 'application/json',  // It can be used to overcome cors errors
+                            'Content-Type': 'application/json'
+                        },
+                        body:JSON.stringify({
+                            "Mobile" :aadhar,
+                            "Message" : body
+                        })
+                    }).then(async function(response){
+                        console.log("OTP Sent Successfully");
+                        await AsyncStorage.setItem('RequestInProgress','true');
+                    
+                        toast.show({
+                            title: "Consent Generated Successfully",
+                            status: "success",
+                            duration: 3000,
+                            variant: "outline-light"
+                        });
+
+                        setLoading(false);
+                        setCurrent(1);
+                    })
+                    
+                }else{
+                    toast.show({
+                        title: response["error"],
+                        status: "error",
+                        duration: 3000,
+                        variant: "outline-light"
+                    });
+                    setLoading(false);
+                }
+            }).catch(err=>console.log(err));
+        }else{
+            toast.show({
+                title: "Invalid Mobile Number",
+                status: "error",
+                duration: 3000,
+                variant: "outline-light"
+            });
+            setLoading(false);
+        }    
     };
 
     return <View 

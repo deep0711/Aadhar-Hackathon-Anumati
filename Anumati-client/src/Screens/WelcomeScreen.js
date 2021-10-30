@@ -44,67 +44,7 @@ function WelcomeScreen( props ) {
     }
     
     useEffect(() => {
-
-        const checkPermissions = async() => {
-            try {
-                await PermissionsAndroid.requestMultiple([
-                    PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-                    PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-                ]);
-                const checkLocation = await PermissionsAndroid.check( PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION );
-                const checkMedia = await PermissionsAndroid.check( PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE );
-                
-                if(checkLocation && checkMedia) {
-                    console.log("Location and Media Permission Granted");
-                    const token = await requestNotification();
-                    await AsyncStorage.setItem('ExpoToken',token["data"]);
-
-                    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-                        setNotification(notification);
-                    });
-                  
-                    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-                    console.log(response);
-                    });
-                    
-                    await fetchData();
-                }else{
-                    console.log("Permission not granted for Location and Media");
-                } 
-            } catch(error) {
-                console.log(error);
-            }  
-        }
-
-        const requestNotification = async() => {
-            const { status: existingStatus } = await Notifications.getPermissionsAsync();
-            let finalStatus = existingStatus;
-            if (existingStatus !== 'granted') {
-                const { status } = await Notifications.requestPermissionsAsync();
-                finalStatus = status;
-            }
-            if (finalStatus !== 'granted') {
-                console.log("Permission not granted");
-                return;
-            }
-            console.log("Notification Permission granted");
-            token = await Notifications.getExpoPushTokenAsync({
-                experienceId: '@goprone/example',
-            });
-
-            if (Platform.OS === 'android') {
-                Notifications.setNotificationChannelAsync('default', {
-                    name: 'default',
-                    importance: Notifications.AndroidImportance.MAX,
-                    vibrationPattern: [0, 250, 250, 250],
-                    lightColor: '#FF231F7C',
-                });
-                }
-            return token;
-        }
-
-        checkPermissions();
-
+        fetchData();
     } , []);
 
     return(

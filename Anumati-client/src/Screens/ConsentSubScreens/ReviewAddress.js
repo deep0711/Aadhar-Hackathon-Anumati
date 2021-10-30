@@ -249,7 +249,7 @@ export default function ReviewAddress({ setCurrent,ConsentID,setHouse,House }) {
           [{ text: 'OK' }],
           { cancelable: false }
         );
-        return;
+        return false;
       }
 
       let { coords } = await Location.getCurrentPositionAsync();
@@ -272,9 +272,15 @@ export default function ReviewAddress({ setCurrent,ConsentID,setHouse,House }) {
           setDisplayCurrentAddressStreet(item.street);
           setDisplayCurrentAddressCity(item.city);
         }
+
+        return true;
+      }else{
+        return false;
       }
     }catch(err){
+
       console.log("Error while using Location",err);
+      return false;
     }  
   };
 
@@ -286,6 +292,7 @@ export default function ReviewAddress({ setCurrent,ConsentID,setHouse,House }) {
         console.log("reviewed");
         
         //Checking address
+        
         await CheckIfLocationEnabled();
         
         if(!locationServiceEnabled)
@@ -293,8 +300,11 @@ export default function ReviewAddress({ setCurrent,ConsentID,setHouse,House }) {
           setLoading(false); 
           return;
         }
-        await GetCurrentLocation();
+        const response = await GetCurrentLocation();
         
+        if(!response)
+          return ;
+
         if(CurrentAddressPC !== pc || CurrentAddressCity != dist)
         {
           toast.show({
@@ -305,7 +315,7 @@ export default function ReviewAddress({ setCurrent,ConsentID,setHouse,House }) {
           setLoading(false);
           return;
         }
-
+        
         await fetch('https://anumati.herokuapp.com/anumati-server/update-address',{
             method:'POST',
             headers: {
@@ -332,13 +342,26 @@ export default function ReviewAddress({ setCurrent,ConsentID,setHouse,House }) {
         }).then(async function(response){
             response = await response.json();
             console.log(response["message"]);
-            setLoading(false);
-            setCurrent(3);   
+            
+            const body = "Hi from Anumati! Your shared address with +91 "+response["ApproverAadhar"] + "got reviewed and finalised by the User.See on App the Final Address.Thank You";                
+              fetch('https://anumati.herokuapp.com/anumati-server/send-sms',{
+                  method:'POST',
+                  headers: {
+                      'Accept': 'application/json',  // It can be used to overcome cors errors
+                      'Content-Type': 'application/json'
+                  },
+                  body:JSON.stringify({
+                      "Mobile" :response["ApproverAadhar"],
+                      "Message" : body
+                  })
+              }).then(async function(response){
+                  console.log("OTP Sent Successfully");
+                  setLoading(false);
+                  setCurrent(3);
+              })
+               
         }).catch(err=>console.log(err));   
         }).catch(err=>console.log(err));
-        
-        
-      
     }
     const OnChange = (text) => {
       console.log("New House is ",text);

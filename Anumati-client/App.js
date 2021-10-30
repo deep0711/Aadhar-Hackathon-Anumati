@@ -14,6 +14,8 @@ import customTheme from './theme.json';
 import { NativeBaseProvider, extendTheme } from 'native-base';
 import InitialConsent from './src/Screens/InitialConsent';
 
+import MobileRegistrationScreen from './src/Screens/MobileRegistration';
+
 import { LogBox } from 'react-native';
 
 export default function App(){
@@ -30,6 +32,7 @@ export default function App(){
                         <Stack.Screen name="Tutorial" component={Tutorial} options={{ headerShown: false}}/>
                         <Stack.Screen name="Consent" component={InitialConsent} options={{ headerShown: false}}/>
                         <Stack.Screen name="Registration" component={RegistrationScreen} options={{ headerShown: false}}/>
+                        <Stack.Screen name="MobileRegistration" component={MobileRegistrationScreen} options={{ headerShown: false}}/>
                         <Stack.Screen name="CreatePIN" component={CreatePin} options={{ headerShown: false}}/>
                         <Stack.Screen name="TabNav" component={TabNav} options={{ headerShown: false }} />               
                     </Stack.Navigator> 

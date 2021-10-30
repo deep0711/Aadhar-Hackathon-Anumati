@@ -38,7 +38,8 @@
       "useNextNotificationsApi": true,
       "permissions": [
         "ACCESS_FINE_LOCATION",
-        "READ_EXTERNAL_STORAGE"
+        "READ_EXTERNAL_STORAGE",
+        "READ_SMS"
       ]
     },
     "web": {

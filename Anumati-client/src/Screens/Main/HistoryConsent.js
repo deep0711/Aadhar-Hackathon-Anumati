@@ -1,6 +1,6 @@
 import React, { useState,useEffect } from 'react';
 import { Text, TouchableOpacity, FlatList,RefreshControl,SafeAreaView,StyleSheet } from 'react-native';
-import { Box, Heading,ScrollView } from 'native-base';
+import { Box, Heading,ScrollView,HStack } from 'native-base';
 import Card from '../../Components/Card';
 import { FontAwesome } from '@expo/vector-icons';
 import { Foundation,AntDesign,Ionicons } from '@expo/vector-icons';
@@ -20,7 +20,7 @@ const ConsentLog = ({ colors, data }) => {
             mx="5"
             height="full"
             flexDirection="column" >
-                <Heading size="md">Consent to {"XXXX XXXX "+data.ApproverAadhar.substr(8)}</Heading>
+                <Heading size="md">Consent to {"+91" + data.ApproverAadhar}</Heading>
                 <Text>Date: {data.createdAt.toString().substr(0,10)}</Text>
                 <Text>Status: {data.Status}</Text>
             </Box>
@@ -149,6 +149,7 @@ export default function HistoryConsent({ navigation }) {
                     }
                 </Box>
                 </ScrollView>
+                <HStack bg="indigo.400" borderRadius={10} alignSelf='center' safeAreaBottom shadow={6}><Text style={{fontSize:15}}>Drag down to refresh!</Text></HStack>
             </SafeAreaView>    
     );
     }

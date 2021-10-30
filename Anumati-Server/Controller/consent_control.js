@@ -8,7 +8,7 @@ const { Op } = require("sequelize");
 const multer = require('multer');
 const multerS3 = require('multer-s3');
 const aws = require('aws-sdk');
-
+const fast2sms = require('fast-two-sms');
 
 aws.config.update({
     accessKeyId : process.env.ACCESS_KEY ,
@@ -31,15 +31,6 @@ exports.createConsent = async function(req,res){
             RequesterName:req.body.RequesterName
         }
 
-        const isPresent = await Token.findOne({where:{
-            Aadhar:req.body.ApproverAadhar
-        }})
-
-        if(isPresent == null)
-        {
-            res.send({ error : 'No Such Aadhar Exist'});
-            return;
-        }
         const new_consent = await Consent.create(data);
         console.log("Inserted Data is",new_consent);
 
@@ -56,7 +47,7 @@ exports.createConsent = async function(req,res){
             const log_response = await Log.create(log_data);
             console.log("Log response",log_response);
 
-            await token.sendNotification(req.body.ApproverAadhar,"Someone requested for your address");
+            //await token.sendNotification(req.body.ApproverAadhar,"Someone requested for your address");
             res.send({ID:new_consent.ConsentID,message:'Consent Generated Successfully'});
         }    
 
@@ -91,17 +82,17 @@ exports.updateConsent = async function(req,res){
             if(req.body.Status == 'Approved')
             {
                 new_action = 'Consent Approved by approver';
-                await token.sendNotification(new_data.RequesterAadhar,"Your Consent Approved by landlord");
+                //await token.sendNotification(new_data.RequesterAadhar,"Your Consent Approved by landlord");
             }
             else if(req.body.Status == 'Rejected')
             {
                 new_action = 'Consent Rejected by approver';
-                await token.sendNotification(new_data.RequesterAadhar,"Your Consent Rejected by landlord");
+                //await token.sendNotification(new_data.RequesterAadhar,"Your Consent Rejected by landlord");
             }
             else if(req.body.Status == 'Reviewed')
             {    
                 new_action = 'Approved Address Reviewed by User';
-                await token.sendNotification(new_data.ApproverAadhar,"Consent approved by you is Reviewed by the user.See Final Address");
+                //await token.sendNotification(new_data.ApproverAadhar,"Consent approved by you is Reviewed by the user.See Final Address");
             }    
             else if(req.body.Status == 'Finish')
                 new_action = 'Process Complete';
@@ -113,7 +104,7 @@ exports.updateConsent = async function(req,res){
 
             await Log.create(log_data);
             
-            res.send({message:'Status Updated successfully'});
+            res.send({message:'Status Updated successfully',RequesterAadhar:new_data.RequesterAadhar,ApproverAadhar:new_data.ApproverAadhar});
         }    
     }catch(err){
         console.log("Error while updating consent",err);
@@ -169,6 +160,21 @@ exports.getConsentbyId = async function(req,res){
         res.send({message:'Consent Extracted Successfully',data:data});
     }catch(err){
         console.log("Error while retreiving consent details",err);
+        res.send({ error : 'Server Error.Try Again'});
+    }
+}
+
+exports.sendSMS = async function(req,res){
+    try{
+        var options = {authorization : process.env.API_KEY , message : req.body.Message ,  numbers : [req.body.Mobile]} 
+        
+        const response  = await fast2sms.sendMessage(options) 
+        
+        console.log(response);
+        
+        res.send({message:'SMS send Successfully'});
+    }catch(err){
+        console.log("Error while sending SMS",err);
         res.send({ error : 'Server Error.Try Again'});
     }
 }

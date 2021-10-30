@@ -9,8 +9,9 @@ import { Box,
 import { View, StyleSheet, StatusBar, ScrollView } from 'react-native';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Loader from './Loader';
 
-const AadhaarFront = ({ colors,photo, name, aadharNo, DOB, Gen}) => (
+const AadhaarFront = ({ colors, name, aadharNo}) => (
     <Box
         width="80"
         height="64"
@@ -29,7 +30,7 @@ const AadhaarFront = ({ colors,photo, name, aadharNo, DOB, Gen}) => (
                 py="5">
                     <Image 
                     source={{
-                        uri: photo
+                        uri: "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"
                     }}
                     alt="profile image"
                     size="md"
@@ -37,13 +38,10 @@ const AadhaarFront = ({ colors,photo, name, aadharNo, DOB, Gen}) => (
                     />
                     <Box
                     ml="5"
-                    display="flex"
-                    flexDirection="column">
+                    >
                     <Heading size="sm" >
                         {name}
                     </Heading>
-                    <Text>Date of Birth: {DOB}</Text>
-                    {Gen=="M" ? <Text>Male</Text> : <Text>Female</Text>}
                     </Box>
                 </Box>
             <Heading size="md">
@@ -52,7 +50,7 @@ const AadhaarFront = ({ colors,photo, name, aadharNo, DOB, Gen}) => (
             </Center>    
         </Box>
 );
-const AadhaarBack = ({ colors,aadharNo, Country, Dist, LOC, PC, PO, House, State, Vtc, Street, SubDist }) => (
+const AadhaarBack = ({ colors }) => (
     <Box
         width="80"
         height="64"
@@ -69,26 +67,20 @@ const AadhaarBack = ({ colors,aadharNo, Country, Dist, LOC, PC, PO, House, State
                 flexDirection="column" 
                 width="full"
                 p="5">
-                    <Text>{House},{Street},{LOC}</Text>
-                    <Text>{SubDist},</Text>
-                    <Text>{Vtc},</Text>
-                    <Text>Post Office-{PO},</Text>
-                    <Text>{Dist},</Text>
-                    <Text>{State}-{PC}, {Country}</Text>
                 </Box>
             
             </Center>    
         </Box>
 )
-const Aadhaar = ({ colors,photo, name, aadharNo, DOB, Gen, Country, Dist, LOC, PC, PO, House, State, Vtc, Street, SubDist }) => (
+const Aadhaar = ({ colors, name, aadharNo}) => (
     <ScrollView horizontal={true}
                 pagingEnabled={true} >
-        <AadhaarFront photo={photo.toString()} name={name.toString()} aadharNo={aadharNo} DOB={DOB} Gen={Gen} />
-        <AadhaarBack Country={Country} Dist={Dist} LOC={LOC} PC={PC} PO={PO} House={House} State={State} Vtc={Vtc} Street={Street} SubDist={SubDist}/>
+        <AadhaarFront name={name.toString()} aadharNo={aadharNo} />
+        <AadhaarBack/>
     </ScrollView>
 );
 
-const AadhaarContainer = ({ colors,photo, name, aadharNo, DOB, Gen, Country, Dist, LOC, PC, PO, House, State, Vtc, Street, SubDist }) => (
+const AadhaarContainer = ({ colors, name, aadharNo}) => (
     <Center
     borderBottomRadius="20"
     bg="primary.500">
@@ -97,7 +89,7 @@ const AadhaarContainer = ({ colors,photo, name, aadharNo, DOB, Gen, Country, Dis
                     My Aadhaar
                 </Text>
                 <Center mt="5" mb="10">
-                <Aadhaar photo={photo.toString()} name={name.toString()} aadharNo={aadharNo} DOB={DOB} Gen={Gen} Country={Country} Dist={Dist} LOC={LOC} PC={PC} PO={PO} House={House} State={State} Vtc={Vtc} Street={Street} SubDist={SubDist}/>
+                <Aadhaar name={name.toString()} aadharNo={aadharNo} />
         </Center>
         </Box>
     </Center>
@@ -106,41 +98,15 @@ const AadhaarContainer = ({ colors,photo, name, aadharNo, DOB, Gen, Country, Dis
 
 export default function MyAadhaar({ navigation }) {
     const { colors } = useTheme();
-    const [photo,setPhoto] = useState("");
     const [name,setName] = useState("");
     const [aadhar,setAadhar] = useState("");
-    const [dob,setDOB] = useState("");
-    const [gender,setGender] = useState("");
-    const [country,setCountry] = useState("");
-    const [dist,setDist] = useState("");
-    const [house,setHouse] = useState("");
-    const [loc,setLOC] = useState("");
-    const [pc,setPC] = useState("");
-    const [po,setPO] = useState("");
-    const [state,setState] = useState("");
-    const [street,setStreet] = useState("");
-    const [subdist,setSubDist] = useState("");
-    const [vtc,setVtc] = useState("");
     
     const [count,setCount] = useState(0);
 
     useEffect(() => {
         const loadData = async () =>{
-            setCountry(await AsyncStorage.getItem('country'));
-            setDist(await AsyncStorage.getItem('dist'));
-            setHouse(await AsyncStorage.getItem('house'));
-            setLOC(await AsyncStorage.getItem('loc'));
-            setPC(await AsyncStorage.getItem('pc'));
-            setPO(await AsyncStorage.getItem('po'));
-            setState(await AsyncStorage.getItem('state'));
-            setStreet(await AsyncStorage.getItem('street'));
-            setSubDist(await AsyncStorage.getItem('subdist'));
-            setVtc(await AsyncStorage.getItem('vtc'));
-            setPhoto("data:image/png;base64," + await AsyncStorage.getItem('photo'));
             setName(await AsyncStorage.getItem('name'));
             setAadhar(await AsyncStorage.getItem('aAdharNumber'));
-            setDOB(await AsyncStorage.getItem('dob'));
-            setGender(await AsyncStorage.getItem('gender'));
             setCount(1);
         }
         loadData();
@@ -149,7 +115,7 @@ export default function MyAadhaar({ navigation }) {
     if(count == 0)
     {
         return(
-            <></>
+            <Loader/>
         )
     }
     return (
@@ -157,7 +123,7 @@ export default function MyAadhaar({ navigation }) {
         <StatusBar backgroundColor={colors['primary']['500']} />
         <View style={styles.container}>
             
-            <AadhaarContainer photo={photo} name={name} aadharNo={"XXXX XXXX " + aadhar.substring(8)} DOB={dob} Gen={gender} Country={country} Dist={dist} LOC={loc} PC={pc} PO={po} House={house} State={state} Vtc={vtc} Street={street} SubDist={subdist} />
+            <AadhaarContainer name={name} aadharNo={"+91 " + aadhar}  />
 
             <View style={ styles.body }>
                 <Button onPress={async() => {

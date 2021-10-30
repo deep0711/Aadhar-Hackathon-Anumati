@@ -1,6 +1,6 @@
 import React,{useState,useEffect} from 'react'
 import { View, Text, FlatList, TouchableOpacity,RefreshControl,SafeAreaView,StyleSheet } from 'react-native'
-import { Box, Heading, ScrollView, useTheme } from 'native-base';
+import { Box, Heading, ScrollView, useTheme,HStack } from 'native-base';
 import { FontAwesome,AntDesign,Foundation,Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Card from '../Components/Card';
@@ -23,7 +23,7 @@ const NotificationCard = ({ colors, navigation,Requester,ConsentId,created_At,Na
                 </Box>
                 <Box m="3" flex="5">
                     <Heading>
-                        Consent Request By {"XXXX XXXX "+Requester.substr(8)}
+                        Consent Request By {"+91 "+Requester}
                     </Heading>
                     <Text>
                         Name: {Name}
@@ -132,6 +132,7 @@ export default function Notifications({ navigation }) {
                         )}}/>}
                     </Box>
                 </ScrollView>
+                <HStack bg="indigo.400" borderRadius={10} alignSelf='center' safeAreaBottom shadow={6}><Text style={{fontSize:15}} textAlign='center'>Drag down to refresh!</Text></HStack>
             </SafeAreaView>    
         )
     }    

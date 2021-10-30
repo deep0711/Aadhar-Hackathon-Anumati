@@ -7,7 +7,7 @@ import ServiceBtn from '../../Components/ServiceBtn';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Loader from '../Loader';
 
-const AadhaarPreview = ({photo,name,aadharNo}) => (
+const AadhaarPreview = ({name,aadharNo}) => (
         <Box
         rounded="lg"
         width="80"
@@ -17,24 +17,24 @@ const AadhaarPreview = ({photo,name,aadharNo}) => (
                 <Image 
                 mx="5"
                 source={{
-                    uri:photo
+                    uri:"https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"
                 }}
                 alt="profile image"
                 size="sm"
                 borderRadius={100} />
                 <View style={{ flexDirection: "column", marginHorizontal: 10 }} >
-                <Heading size="md" >
-                    {name}
-                </Heading>
-                <Text>
-                    {aadharNo}
-                </Text>
+                    <Heading size="md" >
+                        {name}
+                    </Heading>
+                    <Text>
+                        {aadharNo}
+                    </Text>
                 </View>
             </View>
         </Box>
 );
 
-const AadhaarContainer = ({photo,name,aadharNo}) => (
+const AadhaarContainer = ({name,aadharNo}) => (
     <Box
     borderBottomRadius="20"
     bg="primary.500">
@@ -46,7 +46,7 @@ const AadhaarContainer = ({photo,name,aadharNo}) => (
                 ANUMATI
             </Heading>
             <Box my="5">
-            <AadhaarPreview photo={photo} name={name} aadharNo={aadharNo} />
+            <AadhaarPreview name={name} aadharNo={aadharNo} />
             </Box>
         </Center>
     </Box>
@@ -58,7 +58,7 @@ const wait = (timeout) => {
 
 export default function Dashboard({navigation}) {
 
-    const [photo,setPhoto] = useState("");
+    //const [photo,setPhoto] = useState("");
     const [name,setName] = useState("");
     const [aadhar,setAadhar] = useState("");
     
@@ -68,7 +68,7 @@ export default function Dashboard({navigation}) {
     const [refreshing, setRefreshing] = React.useState(false);
     
     const loadData = async () => {
-        setPhoto("data:image/png;base64," + await AsyncStorage.getItem('photo'));
+        //setPhoto("data:image/png;base64," + await AsyncStorage.getItem('photo'));
         setName(await AsyncStorage.getItem('name'));
         setAadhar(await AsyncStorage.getItem('aAdharNumber'));
         setRequest(await AsyncStorage.getItem('RequestInProgress'));
@@ -141,7 +141,7 @@ export default function Dashboard({navigation}) {
         <StatusBar backgroundColor={colors['primary']['500']} />
         <View style={styles.container}>
             
-            <AadhaarContainer photo={photo} name={name} aadharNo={"XXXX XXXX " + aadhar.substring(8)} />
+            <AadhaarContainer name = {name} aadharNo={"+91 " + aadhar} />
             
             <View style={ styles.body }>
                 {
@@ -152,11 +152,11 @@ export default function Dashboard({navigation}) {
                             name="send-o" 
                             size={28} 
                             color={colors["primary"]["500"]} /> }
-                        Label="Resquest Consent" />
+                        Label="New Resquest Consent" />
                     :
                     <ServiceBtn 
                         Icon = { <Zocial name="statusnet"  size={25} color={colors["primary"]["500"]} /> }
-                        Label= "Consent Status"
+                        Label= "Latest Consent Status"
                         handlePress = {() => {
                             getLatestConsetDetail();
                         }}

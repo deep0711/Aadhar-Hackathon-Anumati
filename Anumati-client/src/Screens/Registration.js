@@ -5,8 +5,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { v4 as uuid_v4 } from 'uuid';
 import { View , Image , StyleSheet, ImageBackground , Text} from "react-native";
 import Bg from '../assets/BG2.jpg';
+import Loader from './Loader';
 
-function RegistrationScreen( props ) {
+function RegistrationScreen( {navigation,route} ) {
 
     const [aadharNo , setAadharNo] = useState('');
     const [captcha, setCaptcha] = useState('');
@@ -16,10 +17,12 @@ function RegistrationScreen( props ) {
     const [otp,setOtp] = useState('');
     const [otpSent,setOtpSent] = useState(false);
     const [base64Icon,setIcon] = useState('https://cdn-icons-png.flaticon.com/512/1040/1040252.png');
+    const [isLoaderLoading,setIsLoaderLoading] = useState(true);
 
     const toast = useToast();
             
     useEffect(() => {
+
         async function fetchCaptcha(){
             setOtpSent(false);
             //Calling Captcha API for setting up captcha
@@ -53,7 +56,10 @@ function RegistrationScreen( props ) {
                     console.log("Error occured while Generating Captcha :",err);
                     setIsLoading(false);
             }
-        }    
+        }
+        setTimeout(() => {
+            setIsLoaderLoading(false);
+        }, 2000);
         fetchCaptcha();
     }, []);
 
@@ -64,8 +70,7 @@ function RegistrationScreen( props ) {
         console.log(captcha);
         if (aadharNo.length === 12) {
             try {
-                await AsyncStorage.setItem('aAdharNumber', aadharNo);
-
+                
                 fetch('https://stage1.uidai.gov.in/unifiedAppAuthService/api/v2/generate/aadhaar/otp',{
                     method:'POST',
                     headers:{
@@ -181,59 +186,72 @@ function RegistrationScreen( props ) {
                         //console.log("Hello ",data.OfflinePaperlessKyc)
                         if(typeof response["error"] == 'undefined')
                         {
-                            const poi = data['OfflinePaperlessKyc']['UidData']['Poi'];
-                            await AsyncStorage.setItem("dob",poi['dob']);
-                            await AsyncStorage.setItem("gender",poi['gender']);
-                            await AsyncStorage.setItem("name",poi['name']);
-                            
                             const poa = data['OfflinePaperlessKyc']['UidData']['Poa'];
 
-                            await AsyncStorage.setItem('country',poa['country']);
-                            await AsyncStorage.setItem('dist',poa['dist']);
-                            await AsyncStorage.setItem('house',poa['house']);
-                            await AsyncStorage.setItem('landmark',poa['landmark']);
-                            await AsyncStorage.setItem('loc',poa['loc']);
-                            await AsyncStorage.setItem('pc',poa['pc']);
-                            await AsyncStorage.setItem('po',poa['po']);
-                            await AsyncStorage.setItem('state',poa['state']);
-                            await AsyncStorage.setItem('street',poa['street']);
-                            await AsyncStorage.setItem('subdist',poa['subdist']);
-                            await AsyncStorage.setItem('vtc',poa['vtc']);
-
-                            const photo = data['OfflinePaperlessKyc']['UidData']['Pht'];
-
-                            await AsyncStorage.setItem('photo',photo);
-
-                            toast.show({
-                                title: "Login Succesful",
-                                status: "success",
-                                duration: 3000,
-                                variant: "outline-light"
-                            });
-                            
-                            //Storing Token for Push Notification
-                            
-                            const token = await AsyncStorage.getItem('ExpoToken');
-                            console.log(token);
-
-                            fetch('https://anumati.herokuapp.com/anumati-server/store-token',{
+                            await fetch('https://anumati.herokuapp.com/anumati-server/update-consent',{
                                 method:'POST',
                                 headers: {
                                     'Accept': 'application/json',  // It can be used to overcome cors errors
                                     'Content-Type': 'application/json'
                                 },
                                 body:JSON.stringify({
-                                    "aadhar" :aadharNo,
-                                    "token" : token
+                                    "Status":"Approved",
+                                    "ConsentID":route.params.ConsentId
                                 })
-                            }).then(async function(tokenresponse){
-                                tokenresponse = await tokenresponse.json();
-                                console.log("Toke REsponse:",tokenresponse["message"]);
-                                
-                                setIsLoading(false);
+                            }).then(async function(response){
+                                response = await response.json();
+                                console.log(response["message"]);
+                                const body = "Hi from Anumati! Your Consent Request from +91 " + response["ApproverAadhar"] + " got Approved.Thank You";                
+                                fetch('https://anumati.herokuapp.com/anumati-server/send-sms',{
+                                    method:'POST',
+                                    headers: {
+                                        'Accept': 'application/json',  // It can be used to overcome cors errors
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body:JSON.stringify({
+                                        "Mobile" :response["RequesterAadhar"],
+                                        "Message" : body
+                                    })
+                                }).then(async function(response){
+                                    console.log("Notification Sent Successfully");
+                                    await fetch('https://anumati.herokuapp.com/anumati-server/store-address',{
+                                        method:'POST',
+                                        headers: {
+                                            'Accept': 'application/json',  // It can be used to overcome cors errors
+                                            'Content-Type': 'application/json'
+                                        },
+                                        body:JSON.stringify({
+                                            "ConsentID":route.params.ConsentId,
+                                            HouseNumber : poa['house'],
+                                            StreetName : poa['street'],
+                                            Landmark :poa['landmark'],
+                                            Area : poa['loc'],
+                                            Village : poa['vtc'],
+                                            District : poa['dist'],
+                                            PostOffice : poa['po'],
+                                            State : poa['state'],
+                                            PinCode : poa['pc']
+                                        })
+                                    }).then(async function(response){
+                                        response = await response.json();
+                                        console.log(response["message"]);
+                                        toast.show({
+                                            title: "Consent Approved Successfully",
+                                            status: "success",
+                                            duration: 3000,
+                                            variant: "outline-light"
+                                        });
+                                        setIsLoading(false);  
+                                        navigation.navigate('NotificationHome'); 
+                                        }).catch(err=>console.log(err));
+                                    })
+                            }).catch(err=>console.log(err));
+                            
+                            //Storing Token for Push Notification
+                            setIsLoading(false);
 
-                                props.navigation.navigate('CreatePIN');
-                            }).catch((err) => {console.log(err);setIsLoading(false);});
+                            navigation.navigate('NotificationHome');
+                            
                         }else{
                             toast.show({
                                 title: "Data Fetching Failed.Please Try again",
@@ -270,65 +288,71 @@ function RegistrationScreen( props ) {
     }catch(err){ console.log(err)};
     }
 
-    return(
-        <ImageBackground
-            source={Bg}
-            resizeMode="cover"
-            style={{flex: 1}}
-            blurRadius={1} 
-        >
-            <View style={styles.container}>
-                <View style={styles.logoContainer}>
-                    <Image source={Logo} style={styles.logo}/>
+    if(isLoaderLoading){
+        return(
+            <Loader/>
+        )
+    }else{
+        return(
+            <ImageBackground
+                source={Bg}
+                resizeMode="cover"
+                style={{flex: 1}}
+                blurRadius={1} 
+            >
+                <View style={styles.container}>
+                    <View style={styles.logoContainer}>
+                        <Image source={Logo} style={styles.logo}/>
+                    </View>
+                    
+                    <Text style={{fontSize: 25 , textAlign: 'center' , marginTop: 40}}>ANUMATI </Text>
+                    <Text style={{fontSize: 13 , textAlign: 'center'}}>Please Enter your Aadhar to Approve </Text>
+                    
                 </View>
                 
-                <Text style={{fontSize: 25 , textAlign: 'center' , marginTop: 40}}>Welcome to ANUMATI </Text>
-                <Text style={{fontSize: 13 , textAlign: 'center'}}> Address Update Made Easy </Text>
-                
-            </View>
-            
-            <View style={styles.formContainer}>
-                <Input 
-                    variant="filled" 
-                    placeholder="Enter 12 Digit Aadhar Number"
-                    keyboardType="number-pad"
-                    onChangeText={text => setAadharNo(text)}
-                />
-                <Image resizeMode="contain" style={{width: '100%', height: 90,marginTop:20,marginBottom:20}} source={{uri: base64Icon}}/>
-                <Input 
-                    variant="filled" 
-                    placeholder="Enter Captcha"
-                    onChangeText={text => setCaptcha(text)}
-                />
-                
-                {otpSent ?
-                    <>
+                <View style={styles.formContainer}>
                     <Input 
-                    variant="filled" 
-                    placeholder="Enter OTP sent to your mobile"
-                    keyboardType="number-pad"
-                    onChangeText={text => setOtp(text)}
-                    style={{marginTop:20}}
+                        variant="filled" 
+                        placeholder="Enter 12 Digit Aadhar Number"
+                        keyboardType="number-pad"
+                        onChangeText={text => setAadharNo(text)}
                     />
-                    <Button 
-                    isLoading={isLoading} 
-                    isLoadingText="" 
-                    style={{marginTop: 15 , marginLeft: 15 , marginRight: 15}}
-                    onPress={() => OTPSubmit()}
-                    >
-                    Submit OTP
-                    </Button></>: 
-                    <Button 
+                    <Image resizeMode="contain" style={{width: '100%', height: 90,marginTop:20,marginBottom:20}} source={{uri: base64Icon}}/>
+                    <Input 
+                        variant="filled" 
+                        placeholder="Enter Captcha"
+                        onChangeText={text => setCaptcha(text)}
+                    />
+                    
+                    {otpSent ?
+                        <>
+                        <Input 
+                        variant="filled" 
+                        placeholder="Enter OTP sent to your mobile"
+                        keyboardType="number-pad"
+                        onChangeText={text => setOtp(text)}
+                        style={{marginTop:20}}
+                        />
+                        <Button 
                         isLoading={isLoading} 
                         isLoadingText="" 
                         style={{marginTop: 15 , marginLeft: 15 , marginRight: 15}}
-                        onPress={() => handleSubmit()}
-                    >
-                    Submit
-                </Button>}
-            </View>
-        </ImageBackground>
-    )
+                        onPress={() => OTPSubmit()}
+                        >
+                        Submit OTP
+                        </Button></>: 
+                        <Button 
+                            isLoading={isLoading} 
+                            isLoadingText="" 
+                            style={{marginTop: 15 , marginLeft: 15 , marginRight: 15}}
+                            onPress={() => handleSubmit()}
+                        >
+                        Submit
+                    </Button>}
+                </View>
+            </ImageBackground>
+        )
+    }    
 }
 
 export default RegistrationScreen;
