@@ -137,10 +137,10 @@ export default function ApproveRequest({navigation,route}) {
                     </Button> : 
             <Box flexDirection="row" mt="5" al >
                     <Button onPress={reject}  colorScheme="error" ml="1/5" mr="1/6" alignSelf="center">
-                        {loading ? "Processing..." : "Reject"}
+                        {loading ? "Processing" : "Reject"}
                     </Button>
                     <Button onPress={approve} colorScheme="success" alignSelf="center">
-                        {loading ? "Processing..." : "Approve"}
+                        {loading ? "Processing" : "Approve"}
                     </Button>
             </Box>
                     )}

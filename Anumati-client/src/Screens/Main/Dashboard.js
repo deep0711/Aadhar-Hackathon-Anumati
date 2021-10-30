@@ -64,7 +64,7 @@ export default function Dashboard({navigation}) {
     
     const [count,setCount] = useState(0);
     const [RequestInProgress,setRequest] = useState('');
-
+    const [loading , setLoading] = useState(false);
     const [refreshing, setRefreshing] = React.useState(false);
     
     const loadData = async () => {
@@ -79,6 +79,7 @@ export default function Dashboard({navigation}) {
      * Get Recent Consent
      */
     const getLatestConsetDetail = async() => {
+        setLoading(true);
         try {
             await fetch("https://anumati.herokuapp.com/anumati-server/get-consent-detail" , {
                 method:'POST',
@@ -95,6 +96,7 @@ export default function Dashboard({navigation}) {
                 const consentArrayLength = response["data"].length;
                 if(consentArrayLength !== 0) {
                     const item = response["data"][consentArrayLength - 1];
+                    setLoading(false);
                     response["data"][consentArrayLength - 1]["Status"] !== "Approved" ? 
                     navigation.navigate("Consent Logs",{ ConsentId : item["ConsentID"] })
                     :
@@ -102,9 +104,11 @@ export default function Dashboard({navigation}) {
                 }
             })
             .catch(err => {
+                setLoading(false);
                 console.log(err);
             });
         } catch (err) {
+            setLoading(false);
             console.log(err);
         }
     }
@@ -122,6 +126,11 @@ export default function Dashboard({navigation}) {
     if(count==0){
         return(
             <Loader/>
+        )
+    }
+    if(loading) {
+        return(
+            <Loader />
         )
     }
     return (
