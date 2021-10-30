@@ -80,6 +80,7 @@ export default function Dashboard({navigation}) {
      */
     const getLatestConsetDetail = async() => {
         try {
+            setCount(0);
             await fetch("https://anumati.herokuapp.com/anumati-server/get-consent-detail" , {
                 method:'POST',
                 headers: {
@@ -93,6 +94,7 @@ export default function Dashboard({navigation}) {
             .then(async function (response) {
                 response = await response.json();
                 const consentArrayLength = response["data"].length;
+                setCount(1);
                 if(consentArrayLength !== 0) {
                     const item = response["data"][consentArrayLength - 1];
                     response["data"][consentArrayLength - 1]["Status"] !== "Approved" ? 
@@ -102,9 +104,11 @@ export default function Dashboard({navigation}) {
                 }
             })
             .catch(err => {
+                setCount(1);
                 console.log(err);
             });
         } catch (err) {
+            setCount(1);
             console.log(err);
         }
     }
