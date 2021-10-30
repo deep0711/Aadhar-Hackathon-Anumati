@@ -5,8 +5,7 @@ import aadharLogo from '../assets/Aadhar-Color.png';
 import { connect } from "react-redux";
 import Bg from '../assets/BG2.jpg';
 import * as Notifications from 'expo-notifications';
-import base64 from 'react-native-base64';
-import JSZip from 'jszip';
+
 const DELAY_TIME = 3000;
 
 Notifications.setNotificationHandler({
@@ -21,7 +20,7 @@ function WelcomeScreen( props ) {
     const [notification, setNotification] = useState(false);
     const notificationListener = useRef();
     const responseListener = useRef();
-
+    
     const fetchData = async() => {
         await props.checkForUserToken();
         setTimeout(async () => {

@@ -14,9 +14,13 @@ import customTheme from './theme.json';
 import { NativeBaseProvider, extendTheme } from 'native-base';
 import InitialConsent from './src/Screens/InitialConsent';
 
+import { LogBox } from 'react-native';
+
 export default function App(){
     const Stack = createNativeStackNavigator();
     const theme = extendTheme(customTheme);
+    LogBox.ignoreAllLogs();
+
     return(
         <Provider store={Store}>
             <NativeBaseProvider theme={theme}>

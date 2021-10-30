@@ -54,6 +54,7 @@ export default function Notifications({ navigation }) {
 
     const getConsent = async() => {
         console.log("Aadhar is",aadharNo);
+        setCount(0);
         fetch('https://anumati.herokuapp.com/anumati-server/get-consent-to-approve',{
             method:'POST',
             headers: {
@@ -82,7 +83,7 @@ export default function Notifications({ navigation }) {
             getConsent();
         }
         wait(2000).then(() => setRefreshing(false));
-    }, []);
+    }, [aadharNo]);
 
     useEffect(() => {
         console.log("Hellow World");

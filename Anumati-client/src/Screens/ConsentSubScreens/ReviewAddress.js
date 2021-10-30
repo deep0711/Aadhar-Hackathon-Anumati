@@ -1,5 +1,5 @@
 import React, { useState,useEffect } from 'react';
-import { View } from 'react-native';
+import { View,PermissionsAndroid,Alert } from 'react-native';
 import {Box, 
     Heading, 
     Center, 
@@ -7,10 +7,11 @@ import {Box,
     Button, 
     FormControl, 
     Input, 
-    ScrollView } from 'native-base';
+    ScrollView,useToast } from 'native-base';
 import { FontAwesome } from '@expo/vector-icons';
 import Card from '../../Components/Card';
 import { setStatusBarTranslucent } from 'expo-status-bar';
+import * as Location from 'expo-location';
 
 const Description = ({ colors, handleButton }) => (
     <Center m="10" >
@@ -160,7 +161,7 @@ const ReviewForm = ({ handleSubmit,Country, Dist, LOC, PC, PO, House, State, Vtc
         {loading ? <Button
         mb="10"
         size="lg"
-        colorScheme="grey">
+        colorScheme="secondary">
             Submitting...
         </Button> : 
         <Button
@@ -168,7 +169,7 @@ const ReviewForm = ({ handleSubmit,Country, Dist, LOC, PC, PO, House, State, Vtc
         mb="10"
         size="lg"
         colorScheme="secondary">
-            Reviewed
+            Submit
         </Button>}
     </Box>
 );
@@ -187,6 +188,13 @@ export default function ReviewAddress({ setCurrent,ConsentID,setHouse,House }) {
     const [subdist,setSubDist] = useState("");
     const [vtc,setVtc] = useState("");
     const [loading,setLoading] = useState(false);
+    const [locationServiceEnabled, setLocationServiceEnabled] = useState(false);
+    const [CurrentAddressDistrict,setDisplayCurrentAddressDistrict] = useState('');
+    const [CurrentAddressCity,setDisplayCurrentAddressCity] = useState('');
+    const [CurrentAddressPC,setDisplayCurrentAddressPC] = useState('');
+    const [CurrentAddressStreet,setDisplayCurrentAddressStreet] = useState('');
+    const toast = useToast();
+    
    
     useEffect(() => {
       fetch('https://anumati.herokuapp.com/anumati-server/get-address',{
@@ -214,16 +222,90 @@ export default function ReviewAddress({ setCurrent,ConsentID,setHouse,House }) {
       }).catch(err=>console.log(err));
       
   }, [])
+  
+  const CheckIfLocationEnabled = async () => {
+    let enabled = await Location.hasServicesEnabledAsync();
 
-    const handleButton = () => {
+    if (!enabled) {
+      Alert.alert(
+        'Location Service not enabled',
+        'Please enable your location services to continue',
+        [{ text: 'OK' }],
+        { cancelable: false }
+      );
+    } else {
+      setLocationServiceEnabled(true);
+    }
+  };
+  
+  const GetCurrentLocation = async () => {
+    try{
+      let { status } = await Location.requestForegroundPermissionsAsync();
+
+      if (status !== 'granted') {
+        Alert.alert(
+          'Permission not granted',
+          'Allow the app to use location service.',
+          [{ text: 'OK' }],
+          { cancelable: false }
+        );
+        return;
+      }
+
+      let { coords } = await Location.getCurrentPositionAsync();
+      
+      console.log(coords);
+    
+      if (coords) {
+        const { latitude, longitude } = coords;
+        let response = await Location.reverseGeocodeAsync({
+          latitude,
+          longitude
+        });
+    
+        for (let item of response) {
+          let address = `${item.name},${item.district} , ${item.street}, ${item.postalCode}, ${item.city}`;
+          console.log(address);
+          
+          setDisplayCurrentAddressDistrict(item.district);
+          setDisplayCurrentAddressPC(item.postalCode);
+          setDisplayCurrentAddressStreet(item.street);
+          setDisplayCurrentAddressCity(item.city);
+        }
+      }
+    }catch(err){
+      console.log("Error while using Location",err);
+    }  
+  };
+
+  const handleButton = () => {
         setOpen(true);
     };
     const handleSubmit = async () => {
-        //post reviewed data 
         setLoading(true);
         console.log("reviewed");
-        //Update the DB
         
+        //Checking address
+        await CheckIfLocationEnabled();
+        
+        if(!locationServiceEnabled)
+        { console.log("Location Not Enabled");
+          setLoading(false); 
+          return;
+        }
+        await GetCurrentLocation();
+        
+        if(CurrentAddressPC !== pc || CurrentAddressCity != dist)
+        {
+          toast.show({
+            title: "Current Address Does not match with requested address",
+            status: "error",
+            duration: 3000,
+          });
+          setLoading(false);
+          return;
+        }
+
         await fetch('https://anumati.herokuapp.com/anumati-server/update-address',{
             method:'POST',
             headers: {

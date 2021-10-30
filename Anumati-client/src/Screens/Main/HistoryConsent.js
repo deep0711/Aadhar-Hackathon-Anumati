@@ -61,6 +61,7 @@ export default function HistoryConsent({ navigation }) {
     }
     const getDetails = async () => {
         try{
+                setCount(0);
                 console.log("Aadhar is",aadharNo);
                 fetch('https://anumati.herokuapp.com/anumati-server/get-consent-detail',{
                     method:'POST',
@@ -105,13 +106,14 @@ export default function HistoryConsent({ navigation }) {
     
     const onRefresh = React.useCallback(() => {
         setRefreshing(true);
+        
         if(aadharNo === ''){
             getAadhar();
         }else{
             getDetails();
         }
         wait(2000).then(() => setRefreshing(false));
-    }, []);
+    }, [aadharNo]);
 
     const { colors } = useTheme();
 

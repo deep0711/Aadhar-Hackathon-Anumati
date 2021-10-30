@@ -44,7 +44,8 @@
     "styled-system": "^5.1.5",
     "uuid": "^3.4.0",
     "uuidv4": "^6.2.12",
-    "zlib": "^1.0.5"
+    "zlib": "^1.0.5",
+    "expo-location": "~12.1.2"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0"
