@@ -1,7 +1,15 @@
 # Aadhar-Hackathon-Anumati
+An App built during Aadhar Hackathon 2021 for easing out the process of address update when someone living in a rented space and do not have any proof of current address
 
-## Setup
-Run **npm install** in both client and server, and then run **npm start** in client side and **npm run start** in server side to start the project
+### Presentation
 
-## Backend REST APIs
-https://github.com/deep0711/Aadhar-Hackathon-Anumati/issues/3#issuecomment-950098620
+### Screenshots
+
+### Video Demo
+
+### Team
+**Team Name** - Code-it-all \
+**Members** - \
+Deepak Tiwari \
+Kunal Khanra \
+Roshan Rai
