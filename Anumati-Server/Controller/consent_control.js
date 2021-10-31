@@ -47,7 +47,6 @@ exports.createConsent = async function(req,res){
             const log_response = await Log.create(log_data);
             console.log("Log response",log_response);
 
-            //await token.sendNotification(req.body.ApproverAadhar,"Someone requested for your address");
             res.send({ID:new_consent.ConsentID,message:'Consent Generated Successfully'});
         }    
 
@@ -79,22 +78,15 @@ exports.updateConsent = async function(req,res){
             
             let new_action;
             
-            if(req.body.Status == 'Approved')
-            {
+            if(req.body.Status == 'Approved'){
                 new_action = 'Consent Approved by approver';
-                //await token.sendNotification(new_data.RequesterAadhar,"Your Consent Approved by landlord");
-            }
-            else if(req.body.Status == 'Rejected')
-            {
+            }else if(req.body.Status == 'Rejected'){
                 new_action = 'Consent Rejected by approver';
-                //await token.sendNotification(new_data.RequesterAadhar,"Your Consent Rejected by landlord");
-            }
-            else if(req.body.Status == 'Reviewed')
-            {    
+            }else if(req.body.Status == 'Reviewed'){    
                 new_action = 'Approved Address Reviewed by User';
-                //await token.sendNotification(new_data.ApproverAadhar,"Consent approved by you is Reviewed by the user.See Final Address");
-            }    
-            else if(req.body.Status == 'Finish')
+            }else if(req.body.Status == 'Cancelled'){
+                new_action = 'Consent Cancelled by Requester';
+            }else if(req.body.Status == 'Finish')
                 new_action = 'Process Complete';
             
             const log_data = {

@@ -139,7 +139,7 @@ export default function Notifications({ navigation }) {
                             data={dataList}
                             keyExtractor={ item => item.ConsentID }
                             renderItem={({ item }) => {
-                                return(
+                                return(item.Status !== "Cancelled" ?
                                 <NotificationCard 
                                     colors={colors}
                                     navigation={navigation}
@@ -148,14 +148,14 @@ export default function Notifications({ navigation }) {
                                     created_At = {item.createdAt}
                                     Name = {item.RequesterName}
                                     status = {item.Status}
-                                    />
+                                    />:<></>
                                 )
                             }}
                         />
                     }
                 </Box>
             </ScrollView>
-            <HStack bg="indigo.400" borderRadius={10} alignSelf='center' safeAreaBottom shadow={6}><Text style={{fontSize:15}} textAlign='center'>Drag down to refresh!</Text></HStack>
+            <HStack borderRadius={10} alignSelf='center' safeAreaBottom ><Text style={{fontSize:15,marginBottom:15}}>Drag down to refresh!</Text></HStack>
         </SafeAreaView>    
     )
 }    

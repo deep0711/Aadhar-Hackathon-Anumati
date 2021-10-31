@@ -15,7 +15,7 @@ const ConsentLog = ({ colors, data }) => {
         height="20"
         flexDirection="row" >
             { data.Status=="Approved" ? <FontAwesome name="check-circle-o" size={42} color={colors["success"]["500"]} /> :
-                (data.Status=="Rejected" ? <Foundation name="x-circle" size={42} color={colors["error"]["500"]} /> : ((data.Status == "Reviewed" || data.Status == "Finish")  ? <Ionicons name="checkmark-done-circle" size={42} color={colors["success"]["500"]} /> : <AntDesign name="exclamationcircle" size={42} color='#F98739' />) )}
+                ((data.Status=="Rejected" || data.Status=="Cancelled")  ? <Foundation name="x-circle" size={42} color={colors["error"]["500"]} /> : ((data.Status == "Reviewed" || data.Status == "Finish")  ? <Ionicons name="checkmark-done-circle" size={42} color={colors["success"]["500"]} /> : <AntDesign name="exclamationcircle" size={42} color='#F98739' />) )}
             <Box 
             mx="5"
             height="full"

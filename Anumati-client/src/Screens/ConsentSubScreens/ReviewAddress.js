@@ -284,6 +284,7 @@ export default function ReviewAddress({ setCurrent,ConsentID,setHouse,House }) {
     const handleSubmit = async () => {
         setLoading(true);
         // Checking Address
+        
         await CheckIfLocationEnabled();
         if(!locationServiceEnabled)
         { 

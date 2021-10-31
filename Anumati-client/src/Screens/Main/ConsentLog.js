@@ -1,10 +1,9 @@
 import React, { useState,useEffect } from 'react';
-import { Box, Center, Heading, Text, useTheme } from 'native-base';
-import Card from '../../Components/Card';
+import { Box, Heading, useTheme,AlertDialog,useToast,Button } from 'native-base';
 import { FontAwesome,MaterialIcons } from '@expo/vector-icons';
 import Loader from '../Loader';
 
-const SuccessLog = ({ colors, status, isRequested, isApproved, isReviewed, RequestDate, ApprovedDate, ReviewedDate, isRejected, RejectedDate }) => (
+const SuccessLog = ({ colors, status, isRequested, isApproved, isReviewed, RequestDate, ApprovedDate, ReviewedDate, isRejected, RejectedDate, isCancelled, CancelledDate}) => (
     <Box 
         flex={1} 
         width="full" 
@@ -67,7 +66,7 @@ const SuccessLog = ({ colors, status, isRequested, isApproved, isReviewed, Reque
                         isApproved ? 
                         <FontAwesome name="check-circle" size={28} color={colors["success"]["500"]} /> 
                         : 
-                        (isRejected ? 
+                        ((isRejected || isCancelled) ? 
                             <MaterialIcons name="cancel" size={28} color="red" /> 
                             : 
                             <FontAwesome name="check-circle" size={28} color="grey" />
@@ -93,8 +92,10 @@ const SuccessLog = ({ colors, status, isRequested, isApproved, isReviewed, Reque
                             : 
                             (isRejected ? 
                                 <Heading  mt="3"  size="xs" color="error.400">Consent Rejected</Heading> 
-                                : 
-                                <Heading  mt="3"  size="xs" color="muted.400">Pending</Heading>
+                                : (isCancelled ? 
+                                    <Heading  mt="3"  size="xs" color="muted.400">Consent Cancelled</Heading>:
+                                    <Heading  mt="3"  size="xs" color="muted.400">Pending</Heading>
+                                )
                             ) 
                         }
                     </Box>
@@ -224,11 +225,17 @@ export default function ConsentLog({navigation,route}) {
     const [isApproved , setIsApproved]     = useState(false);
     const [isRejected , setIsRejected]     = useState(false);
     const [isReviewed , setIsReviewed]     = useState(false);
+    const [isCancelled , setIsCancelled]   = useState(false);
     const [RequestDate , setRequestDate]   = useState("");
     const [ApprovedDate , setApprovedDate] = useState("");
-    const [ReviewedDate ,setReviewedDate]  = useState("");
-    const [RejectedDate ,setRejectedDate]  = useState("");
+    const [ReviewedDate , setReviewedDate] = useState("");
+    const [RejectedDate , setRejectedDate] = useState("");
+    const [CancelledDate , setCancelledDate] = useState("");
+    const [isOpen, setIsOpen] = useState(false)
+    const [cancelLoading,setCancelLoading] = useState(false);
     const [count,setCount] = useState(0);
+
+    const toast = useToast();
 
     useEffect(() => {
         fetch('https://anumati.herokuapp.com/anumati-server/get-logs-by-id', {
@@ -250,7 +257,7 @@ export default function ConsentLog({navigation,route}) {
                         setIsRequested(true);
                         setRequestDate(item.createdAt);
 
-                    } else if(item.Action === 'Consent Approved by approver') {
+                    }else if(item.Action === 'Consent Approved by approver') {
                         setIsApproved(true);
                         setApprovedDate(item.createdAt);
                     }else if(item.Action === 'Approved Address Reviewed by User') {
@@ -259,15 +266,53 @@ export default function ConsentLog({navigation,route}) {
                     }else if(item.Action === 'Consent Rejected by approver') {
                         setIsRejected(true);
                         setRejectedDate(item.createdAt);
+                    }else if(item.Action === 'Consent Cancelled by Requester'){
+                        setIsCancelled(true);
+                        setCancelledDate(item.createdAt);
                     }
                 })
+                setCount(1);
+            }else{
                 setCount(1);
             }
         })
         .catch( err => console.log("ConsentLog ->" , err));
     }, [])
     
+    const onClose = () => {
+        setIsOpen(false);
+    }    
+
+    const handleCancel = async () => {
+        //onClose();
+        setCancelLoading(true);
+        
+        await fetch('https://anumati.herokuapp.com/anumati-server/update-consent',{
+            method:'POST',
+            headers: {
+                'Accept': 'application/json',  // It can be used to overcome cors errors
+                'Content-Type': 'application/json'
+            },
+            body:JSON.stringify({
+                "Status":"Cancelled",
+                "ConsentID":route.params.ConsentId
+            })
+        })
+        .then(async function(response) {
+            response = await response.json();
+            setCancelLoading(false);
+            toast.show({
+                title: "Consent Deleted Successfully",
+                status: "success",
+                duration: 3000,
+                variant: "outline-light"
+            });
+            navigation.navigate('History')
+        })
+    }
+
     const { colors } = useTheme();
+
     if(count === 0) {
         return(
             <Loader/>
@@ -276,7 +321,8 @@ export default function ConsentLog({navigation,route}) {
         return <Box flex={1} >
             
             {/*Show the status on SuccessLog*/}
-            <SuccessLog colors={colors} status={status} isRequested={isRequested} isApproved={isApproved} isReviewed={isReviewed} RequestDate={RequestDate} ApprovedDate={ApprovedDate} ReviewedDate={ReviewedDate} isRejected={isRejected} RejectedDate={RejectedDate} />
+            <SuccessLog colors={colors} status={status} isRequested={isRequested} isApproved={isApproved} isReviewed={isReviewed} RequestDate={RequestDate} ApprovedDate={ApprovedDate} ReviewedDate={ReviewedDate} isRejected={isRejected} RejectedDate={RejectedDate} isCancelled={isCancelled} CancelledDate={CancelledDate} />
+            
             {
                 isReviewed ? 
                 <Box 
@@ -301,7 +347,7 @@ export default function ConsentLog({navigation,route}) {
                     </Heading>
                 </Box> 
                 : 
-                (isRejected ? 
+                ((isRejected || isCancelled) ? 
                     <Box 
                         mx="5"
                         justifyContent="center"
@@ -319,11 +365,53 @@ export default function ConsentLog({navigation,route}) {
                             Start New Consent   
                         </Heading>
                     </Box>
-                    :
-                    <>
-                    </>
+                    : 
+                    <Box 
+                        mx="5"
+                        justifyContent="center"
+                        alignItems="center"
+                        bgColor="orange.400" 
+                        my="5"
+                        borderRadius="md"
+                    >
+                        <Heading 
+                            onPress={()=>setIsOpen(true)} 
+                            my="5" color="muted.600"
+                        >
+                            {cancelLoading ? "Cancelling" : "Cancel Consent"}   
+                        </Heading>
+                    </Box>
+                    
                 )
-            }   
+            }
+            
+            <AlertDialog
+                isOpen={isOpen}
+                onClose={onClose}
+            >
+                <AlertDialog.Content>
+                <AlertDialog.CloseButton />
+                <AlertDialog.Header>Delete Consent</AlertDialog.Header>
+                <AlertDialog.Body>
+                    This will remove all data relating to Consent. This action cannot be
+                    reversed
+                </AlertDialog.Body>
+                <AlertDialog.Footer>
+                    <Button.Group space={2}>
+                        <Button
+                            variant="unstyled"
+                            colorScheme="coolGray"
+                            onPress={onClose}
+                        >
+                            Cancel
+                        </Button>
+                        <Button colorScheme="danger" onPress={handleCancel}>
+                            Delete
+                        </Button>
+                    </Button.Group>
+                </AlertDialog.Footer>
+                </AlertDialog.Content>
+            </AlertDialog>   
         </Box>
     }    
 }
