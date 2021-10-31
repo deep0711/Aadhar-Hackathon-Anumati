@@ -6,3 +6,10 @@ An App built during Aadhar Hackathon 2021 for easing out the process of address 
 ### Screenshots
 
 ### Video Demo
+
+### Team
+**Team Name** - Code-it-all \
+**Members** - \
+Deepak Tiwari \
+Kunal Khanra \
+Roshan Rai
