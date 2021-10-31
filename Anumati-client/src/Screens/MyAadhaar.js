@@ -23,11 +23,12 @@ const AadhaarFront = ({ colors, name, aadharNo}) => (
                     Government of India
                 </Heading>
                 <Box 
-                display="flex"
-                height="4/5"
-                flexDirection="row" 
-                width="full"
-                py="5">
+                    display="flex"
+                    height="4/5"
+                    flexDirection="row" 
+                    width="full"
+                    py="5"
+                >
                     <Image 
                     source={{
                         uri: "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"
@@ -39,7 +40,7 @@ const AadhaarFront = ({ colors, name, aadharNo}) => (
                     <Box
                     ml="5"
                     >
-                    <Heading size="sm" >
+                    <Heading size="sm">
                         {name}
                     </Heading>
                     </Box>
@@ -126,7 +127,12 @@ export default function MyAadhaar({ navigation }) {
             <AadhaarContainer name={name} aadharNo={"+91 " + aadhar}  />
 
             <View style={ styles.body }>
-                <Button onPress={async() => {
+                <Button
+                    style = {{
+                        width: '50%'
+                    }}
+                    variant="solid"
+                    onPress={async() => {
                         try {
                             await AsyncStorage.removeItem('userToken');
                             await AsyncStorage.removeItem('aAdharNumber');

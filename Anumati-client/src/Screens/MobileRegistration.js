@@ -21,7 +21,6 @@ function MobileRegistrationScreen( props ) {
             
     const handleSubmit = async() => {
         setIsLoading(true);
-        console.log(MobileNo);
         if (MobileNo.length === 10) {
             try {
                 await AsyncStorage.setItem('aAdharNumber', MobileNo);
@@ -33,11 +32,9 @@ function MobileRegistrationScreen( props ) {
                 {
                     otp += digits[Math.floor(Math.random() * 10)];
                 }
-
                 setOTPgenerated(otp);
-                console.log(otp);
                 const body = "Hi from Anumati! Your OTP is " + otp + ".Thank You";                
-                fetch('https://anumati.herokuapp.com/anumati-server/send-sms',{
+                await fetch('https://anumati.herokuapp.com/anumati-server/send-sms' , {
                     method:'POST',
                     headers: {
                         'Accept': 'application/json',  // It can be used to overcome cors errors
@@ -47,7 +44,8 @@ function MobileRegistrationScreen( props ) {
                         "Mobile" :MobileNo,
                         "Message" : body
                     })
-                }).then(async function(response){
+                })
+                .then(async function(response) {
                     setIsLoading(false);
                     setOtpSent(true);
                     toast.show({
@@ -56,17 +54,13 @@ function MobileRegistrationScreen( props ) {
                         duration: 3000,
                         variant: "outline-light"
                     });
-                    console.log("OTP Sent Successfully");
                 })
-                //Communications.text(MobileNo,"Your OTP is"+otp.toString())
             } catch(e) {
                 setIsLoading(false);
                 console.log(e);
             }
         } else {
-            console.log('Mobile Number must be 10 Digit Long!');
             setIsLoading(false);
-
             toast.show({
                 title: "Wrong Input",
                 status: "error",
@@ -79,7 +73,7 @@ function MobileRegistrationScreen( props ) {
     const OTPSubmit = async () => {
         try{
             setIsLoading(true);
-            if(OTPgenerated == otp){
+            if(OTPgenerated === otp){
                 
                 toast.show({
                     title: "Login Succesful",
@@ -87,8 +81,6 @@ function MobileRegistrationScreen( props ) {
                     duration: 3000,
                     variant: "outline-light"
                 });
-                //Storing Token for Push Notification
-                
                 setIsLoading(false);
                 props.navigation.navigate('CreatePIN');
             }else{
@@ -145,30 +137,34 @@ function MobileRegistrationScreen( props ) {
                     mb="5"
                 />
                 
-                {otpSent ?
+                {
+                    otpSent ?
                     <>
-                    <Input 
-                    variant="filled" 
-                    placeholder="Enter OTP sent to your mobile"
-                    keyboardType="number-pad"
-                    onChangeText={text => setOtp(text)}
-                    />
-                    <Button 
-                    isLoading={isLoading} 
-                    isLoadingText="" 
-                    style={{marginTop: 15 , marginLeft: 15 , marginRight: 15}}
-                    onPress={() => OTPSubmit()}
-                    >
-                    Submit OTP
-                    </Button></>: 
+                        <Input 
+                            variant="filled" 
+                            placeholder="Enter OTP sent to your mobile"
+                            keyboardType="number-pad"
+                            onChangeText={text => setOtp(text)}
+                        />
+                        <Button 
+                            isLoading={isLoading} 
+                            isLoadingText="" 
+                            style={{marginTop: 15 , marginLeft: 15 , marginRight: 15}}
+                            onPress={() => OTPSubmit()}
+                        >
+                            Submit OTP
+                        </Button>
+                    </>
+                    : 
                     <Button 
                         isLoading={isLoading} 
                         isLoadingText="" 
                         style={{marginTop: 15 , marginLeft: 15 , marginRight: 15}}
                         onPress={() => handleSubmit()}
                     >
-                    Submit
-                </Button>}
+                        Submit
+                    </Button>
+                }
             </View>
         </ImageBackground>
     )

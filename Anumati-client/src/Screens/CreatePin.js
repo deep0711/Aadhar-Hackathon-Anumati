@@ -7,10 +7,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 function CreatePin( props ) {
 
     useEffect(() => {
-
-        const getPinfromDB = async() => {
-            console.log("The Current status is",props.loginStatus);
-            
+        const getPinfromDB = async() => {            
             if(!props.loginStatus)
             {
                 const aadharNo = await AsyncStorage.getItem('aAdharNumber');
@@ -24,11 +21,9 @@ function CreatePin( props ) {
                     body:JSON.stringify({
                         "aadhar":aadharNo
                     })
-                }).then(async function(response){
-                    
+                })
+                .then(async function(response){    
                     response = await response.json();
-                    console.log("Successfule PIN fetching");
-                    
                     if(response["message"] === "PIN received successfully")
                     {
                         props.storeUserToken(response["pin"]);
@@ -37,7 +32,8 @@ function CreatePin( props ) {
                             routes: [{ name: 'CreatePIN'}]
                         });
                     }    
-                }).catch((err) => {console.log(err)});
+                })
+                .catch(err => console.log(err));
             }
         }
         getPinfromDB();        
@@ -64,7 +60,7 @@ const mapDispatchToProps = ( dispatch ) => {
                 await AsyncStorage.setItem('mPin' , pinCode);
                 await AsyncStorage.setItem('userToken' , '#f7j38df');
                 dispatch({ type: 'CREATE_PIN' , pin: pinCode});
-            }catch(err){
+            } catch(err) {
                 console.log(err);
             }
         }

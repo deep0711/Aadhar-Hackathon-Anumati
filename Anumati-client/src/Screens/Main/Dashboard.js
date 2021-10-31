@@ -68,7 +68,6 @@ export default function Dashboard({navigation}) {
     const [refreshing, setRefreshing] = React.useState(false);
     
     const loadData = async () => {
-        //setPhoto("data:image/png;base64," + await AsyncStorage.getItem('photo'));
         setName(await AsyncStorage.getItem('name'));
         setAadhar(await AsyncStorage.getItem('aAdharNumber'));
         setRequest(await AsyncStorage.getItem('RequestInProgress'));
@@ -123,7 +122,7 @@ export default function Dashboard({navigation}) {
         setRequest(await AsyncStorage.getItem('RequestInProgress'));
         wait(2000).then(() => setRefreshing(false));
       }, []);
-    if(count==0){
+    if(count === 0){
         return(
             <Loader/>
         )
@@ -140,9 +139,7 @@ export default function Dashboard({navigation}) {
         >
         <StatusBar backgroundColor={colors['primary']['500']} />
         <View style={styles.container}>
-            
             <AadhaarContainer name = {name} aadharNo={"+91 " + aadhar} />
-            
             <View style={ styles.body }>
                 {
                     RequestInProgress !== "true" ?

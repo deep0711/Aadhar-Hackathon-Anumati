@@ -10,16 +10,15 @@ import {Box,
     ScrollView,useToast } from 'native-base';
 import { FontAwesome } from '@expo/vector-icons';
 import Card from '../../Components/Card';
-import { setStatusBarTranslucent } from 'expo-status-bar';
 import * as Location from 'expo-location';
 
 const Description = ({ colors, handleButton }) => (
     <Center m="10" >
         <Box mb="5">
             <FontAwesome 
-            name="check-circle-o" 
-            size={28} 
-            color={ colors["secondary"]["500"] } />
+              name="check-circle-o" 
+              size={28} 
+              color={ colors["secondary"]["500"] } />
         </Box>
         <Heading size="md">
             Consent Approved 
@@ -28,15 +27,15 @@ const Description = ({ colors, handleButton }) => (
             Now Review the details
         </Heading>
         <Button 
-        onPress={ handleButton }
-        mt="5"
-        size="lg"
-        colorScheme="secondary" >
+          onPress={ handleButton }
+          mt="5"
+          size="lg"
+          colorScheme="secondary" >
             Review
         </Button>
     </Center>
 );
-const ReviewForm = ({ handleSubmit,Country, Dist, LOC, PC, PO, House, State, Vtc, Street, SubDist,OnChange,loading }) => (
+const ReviewForm = ({ handleSubmit, Country, Dist, LOC, PC, PO, House, State, Vtc, Street, SubDist,OnChange,loading }) => (
     <Box m="10" width="72" > 
         <Heading mb="5">
             Review Details
@@ -45,10 +44,10 @@ const ReviewForm = ({ handleSubmit,Country, Dist, LOC, PC, PO, House, State, Vtc
         <FormControl mb="5" >
           <FormControl.Label>House/Bldg/Apt</FormControl.Label>
           <Input 
-          type="string" 
-          value={House}
-          onChangeText={text => OnChange(text)} 
-          placeholder={House} />
+            type="string" 
+            value={House}
+            onChangeText={text => OnChange(text)} 
+            placeholder={House} />
           <FormControl.HelperText>
             This field is editable
           </FormControl.HelperText>
@@ -162,13 +161,13 @@ const ReviewForm = ({ handleSubmit,Country, Dist, LOC, PC, PO, House, State, Vtc
         mb="10"
         size="lg"
         colorScheme="secondary">
-            Submitting...
+            Submitting ... 
         </Button> : 
         <Button
-        onPress={ handleSubmit }
-        mb="10"
-        size="lg"
-        colorScheme="secondary">
+          onPress={ handleSubmit }
+          mb="10"
+          size="lg"
+          colorScheme="secondary">
             Submit
         </Button>}
     </Box>
@@ -197,7 +196,7 @@ export default function ReviewAddress({ setCurrent,ConsentID,setHouse,House }) {
     
    
     useEffect(() => {
-      fetch('https://anumati.herokuapp.com/anumati-server/get-address',{
+      fetch('https://anumati.herokuapp.com/anumati-server/get-address', { 
           method:'POST',
           headers: {
               'Accept': 'application/json',  // It can be used to overcome cors errors
@@ -206,9 +205,10 @@ export default function ReviewAddress({ setCurrent,ConsentID,setHouse,House }) {
           body:JSON.stringify({
               "ConsentID":ConsentID,
           })
-      }).then(async function(response){
+      })
+      .then(async function(response) {
           response = await response.json();
-          console.log("Address Received is",response);
+
           setCountry(response["Country"]);
           setDist(response["District"]);
           setHouseN(response["HouseNumber"]);
@@ -219,13 +219,13 @@ export default function ReviewAddress({ setCurrent,ConsentID,setHouse,House }) {
           setStreet(response["StreetName"]);
           setSubDist(response["SubDist"]);
           setVtc(response["Village"]);   
-      }).catch(err=>console.log(err));
+      })
+      .catch(err => console.log("ReviewAddress , useEffect",err));
       
   }, [])
   
   const CheckIfLocationEnabled = async () => {
     let enabled = await Location.hasServicesEnabledAsync();
-
     if (!enabled) {
       Alert.alert(
         'Location Service not enabled',
@@ -253,9 +253,6 @@ export default function ReviewAddress({ setCurrent,ConsentID,setHouse,House }) {
       }
 
       let { coords } = await Location.getCurrentPositionAsync();
-      
-      console.log(coords);
-    
       if (coords) {
         const { latitude, longitude } = coords;
         let response = await Location.reverseGeocodeAsync({
@@ -265,21 +262,18 @@ export default function ReviewAddress({ setCurrent,ConsentID,setHouse,House }) {
     
         for (let item of response) {
           let address = `${item.name},${item.district} , ${item.street}, ${item.postalCode}, ${item.city}`;
-          console.log(address);
-          
+                    
           setDisplayCurrentAddressDistrict(item.district);
           setDisplayCurrentAddressPC(item.postalCode);
           setDisplayCurrentAddressStreet(item.street);
           setDisplayCurrentAddressCity(item.city);
         }
-
         return true;
-      }else{
+      } else {
         return false;
       }
-    }catch(err){
-
-      console.log("Error while using Location",err);
+    } catch(err) {
+      console.log("Error while using Location" , err);
       return false;
     }  
   };
@@ -289,23 +283,18 @@ export default function ReviewAddress({ setCurrent,ConsentID,setHouse,House }) {
     };
     const handleSubmit = async () => {
         setLoading(true);
-        console.log("reviewed");
-        
-        //Checking address
-        
+        // Checking Address
         await CheckIfLocationEnabled();
-        
         if(!locationServiceEnabled)
-        { console.log("Location Not Enabled");
+        { 
           setLoading(false); 
           return;
         }
         const response = await GetCurrentLocation();
-        
         if(!response)
           return ;
 
-        if(CurrentAddressPC !== pc || CurrentAddressCity != dist)
+        if(CurrentAddressPC !== pc || CurrentAddressCity !== dist)
         {
           toast.show({
             title: "Current Address Does not match with requested address",
@@ -316,7 +305,7 @@ export default function ReviewAddress({ setCurrent,ConsentID,setHouse,House }) {
           return;
         }
         
-        await fetch('https://anumati.herokuapp.com/anumati-server/update-address',{
+        await fetch('https://anumati.herokuapp.com/anumati-server/update-address', {
             method:'POST',
             headers: {
                 'Accept': 'application/json',  // It can be used to overcome cors errors
@@ -326,9 +315,9 @@ export default function ReviewAddress({ setCurrent,ConsentID,setHouse,House }) {
                 "HouseNumber":house,
                 "ConsentID":ConsentID
             })
-        }).then(async function(response){
+        })
+        .then(async function(response) { 
             response = await response.json();
-            console.log(response["message"]);
             await fetch('https://anumati.herokuapp.com/anumati-server/update-consent',{
             method:'POST',
             headers: {
@@ -339,12 +328,12 @@ export default function ReviewAddress({ setCurrent,ConsentID,setHouse,House }) {
                 "Status":"Reviewed",
                 "ConsentID":ConsentID
             })
-        }).then(async function(response){
+        })
+        .then(async function(response) {
             response = await response.json();
-            console.log(response["message"]);
             
-            const body = "Hi from Anumati! Your shared address with +91 "+response["ApproverAadhar"] + "got reviewed and finalised by the User.See on App the Final Address.Thank You";                
-              fetch('https://anumati.herokuapp.com/anumati-server/send-sms',{
+            const body = "Hi from Anumati! Your shared address with +91 " + response["ApproverAadhar"] + "got reviewed and finalised by the User.See on App the Final Address.Thank You";                
+              fetch('https://anumati.herokuapp.com/anumati-server/send-sms', {
                   method:'POST',
                   headers: {
                       'Accept': 'application/json',  // It can be used to overcome cors errors
@@ -354,53 +343,59 @@ export default function ReviewAddress({ setCurrent,ConsentID,setHouse,House }) {
                       "Mobile" :response["ApproverAadhar"],
                       "Message" : body
                   })
-              }).then(async function(response){
-                  console.log("OTP Sent Successfully");
+              })
+              .then(async function(response){
                   setLoading(false);
                   setCurrent(3);
               })
                
-        }).catch(err=>console.log(err));   
-        }).catch(err=>console.log(err));
+        })
+        .catch(err => console.log(err));   
+      })
+      .catch(err => console.log(err));
     }
     const OnChange = (text) => {
-      console.log("New House is ",text);
       setHouse(text);
       setHouseN(text);
     }
 
-    return (<View style={{ 
-        flex: 1,
-        alignItems: "center", 
-         }}>
+    return(
+      <View style={{ 
+          flex: 1,
+          alignItems: "center", 
+        }}>
         <Box>
-            <ScrollView
+          <ScrollView
             _contentContainerStyle={{
                 mt: "10",
                 mb: "56"
               }}>
             <Card>
-                { openForm ? <ReviewForm 
-                handleSubmit={ handleSubmit }
-                Country = {country} 
-                Dist={dist} 
-                LOC={loc} 
-                PC={pc}
-                PO={po}
-                House={house}
-                State={state}
-                Vtc={vtc}
-                Street={street}
-                SubDist={subdist} 
-                OnChange = {OnChange}
-                loading = {loading}
-                /> : 
-                <Description
-                colors={colors}
-                handleButton={handleButton} 
-                /> }
+                { 
+                  openForm ? 
+                  <ReviewForm 
+                    handleSubmit={ handleSubmit }
+                    Country = {country} 
+                    Dist={dist} 
+                    LOC={loc} 
+                    PC={pc}
+                    PO={po}
+                    House={house}
+                    State={state}
+                    Vtc={vtc}
+                    Street={street}
+                    SubDist={subdist} 
+                    OnChange = {OnChange}
+                    loading = {loading}
+                  /> 
+                  : 
+                  <Description
+                    colors={colors}
+                    handleButton={handleButton} 
+                  /> 
+                }
             </Card>   
-            </ScrollView>
+          </ScrollView>
         </Box>     
     </View>
     )
