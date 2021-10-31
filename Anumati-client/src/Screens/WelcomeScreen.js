@@ -1,5 +1,5 @@
-import React , { useEffect,useRef,useState } from "react";
-import { Image, View , StyleSheet , ActivityIndicator, ImageBackground,PermissionsAndroid, Platform} from "react-native";
+import React , { useEffect } from "react";
+import { Image, View , StyleSheet , ActivityIndicator, ImageBackground } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import aadharLogo from '../assets/Aadhar-Color.png';
 import { connect } from "react-redux";
@@ -17,9 +17,6 @@ Notifications.setNotificationHandler({
   });
 
 function WelcomeScreen( props ) {
-    const [notification, setNotification] = useState(false);
-    const notificationListener = useRef();
-    const responseListener = useRef();
     
     const fetchData = async() => {
         await props.checkForUserToken();
@@ -76,7 +73,6 @@ const mapDispatchToProps = ( dispatch ) => {
                 const aadharCardNumber = await AsyncStorage.getItem('aAdharNumber');
                 const mPin = await AsyncStorage.getItem('mPin');
                 if (value !== null) {
-                    console.log("Token Already Present");
                     dispatch({ type: 'TOKEN_FOUND' , aNumber: aadharCardNumber , _mPin: mPin}); 
                 }  
             } catch(err) {

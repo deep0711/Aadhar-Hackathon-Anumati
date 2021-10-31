@@ -62,8 +62,7 @@ export default function HistoryConsent({ navigation }) {
     const getDetails = async () => {
         try{
                 setCount(0);
-                console.log("Aadhar is",aadharNo);
-                fetch('https://anumati.herokuapp.com/anumati-server/get-consent-detail',{
+                await fetch('https://anumati.herokuapp.com/anumati-server/get-consent-detail',{
                     method:'POST',
                     headers: {
                         'Accept': 'application/json',  // It can be used to overcome cors errors
@@ -72,37 +71,36 @@ export default function HistoryConsent({ navigation }) {
                     body:JSON.stringify({
                         "aadhar":aadharNo,
                     })
-                }).then(async function(response){
+                })
+                .then(async function(response){
                     response = await response.json();
-                    console.log(response);
-                    if(response["message"] ==='Consent Extracted Successfully')
+                    if(response["message"] === 'Consent Extracted Successfully')
                     {
                         setDataList(response['data']);
                         var cnt = 0;
-                        response['data'].map(item=>{
-                            if(item.Status == "Pending" || item.Status == "Approved")
-                            cnt=1;
-                        })
-
-                        if(cnt == 0)
+                        response['data'].map(item => {
+                            if(item.Status === "Pending" || item.Status === "Approved")
+                            cnt  =1;
+                        });
+                        if(cnt === 0)
                         {
-                            console.log("New Consent is Allowed");
                             await AsyncStorage.setItem('RequestInProgress','false');
                         }
                         setCount(1);   
                     }
-                    }).catch(err=>console.log(err));
-            }catch(err){
-                console.log("Error is ",err);
+                })
+                .catch(err => console.log(err));
+            } catch(err) {
+                console.log("Error is ", err);
             }
     }
     useEffect(() => {
         if(aadharNo === ''){
             getAadhar();
-        }else{
+        } else {
             getDetails();
         }
-    }, [aadharNo])
+    }, [aadharNo]);
     
     const onRefresh = React.useCallback(() => {
         setRefreshing(true);
@@ -121,7 +119,7 @@ export default function HistoryConsent({ navigation }) {
         return (
             <Loader/>
         )
-    else if(count == 1){      
+    else if(count === 1) {      
     return (
         <SafeAreaView style={styles.container}>
                 <ScrollView refreshControl={
@@ -131,25 +129,30 @@ export default function HistoryConsent({ navigation }) {
                     />
                 }>
                 <Box 
-                flex="1" 
-                justifyContent="center"
-                alignItems="center" >
+                    flex="1" 
+                    justifyContent="center"
+                    alignItems="center" >
                     {
-                        dataList.length==0 ? 
-                        <Card 
-                        borderRadius="lg">
-                        <Heading m="10">
-                            No Consent
-                        </Heading>
-                        </Card> :
+                        dataList.length === 0 ? 
+                        <Card borderRadius="lg">
+                            <Heading m="10">
+                                No Consent
+                            </Heading>
+                        </Card> 
+                        :
                         <HistoryList 
-                        navigation={navigation}
-                        colors={colors} 
-                        dataList={ dataList } />
+                            navigation={navigation}
+                            colors={colors} 
+                            dataList={ dataList } 
+                        />
                     }
                 </Box>
                 </ScrollView>
-                <HStack bg="indigo.400" borderRadius={10} alignSelf='center' safeAreaBottom shadow={6}><Text style={{fontSize:15}}>Drag down to refresh!</Text></HStack>
+                <HStack borderRadius={10} alignSelf='center' safeAreaBottom >
+                    <Text style={{ fontSize:15 , marginBottom: 10}}>
+                        Drag down to refresh!
+                    </Text>
+                </HStack>
             </SafeAreaView>    
     );
     }

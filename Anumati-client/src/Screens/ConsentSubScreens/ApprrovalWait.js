@@ -17,20 +17,12 @@ export default function ApprovalWait({ setCurrent }) {
                 </Center>
                 <Center>
                     <Heading size="md">
-                    Waiting for approval
+                        Waiting for approval
                     </Heading>
                     <Heading size="md">
                         Sit back and relax
                     </Heading>
                 </Center>
-                {/*
-                <Box mt="10">
-                    <Button
-                    onPress={()=>{ setCurrent(2) }}>
-                        Debug Next 
-                    </Button>                
-                </Box>*/
-                }
             </Box>
         </Card>
         </View>);

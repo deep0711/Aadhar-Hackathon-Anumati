@@ -12,7 +12,6 @@ const InitialConsent = ( props ) => {
                 source={Bg}
                 resizeMode="cover"
                 style={{flex: 1 , justifyContent: 'center'}}
-                //blurRadius={} 
             >
                 <View style = {{width: 350 , height: 650 , alignSelf: 'center' , marginTop: 10 , padding: 10, backgroundColor:'transparent'}}>
                     <Heading style={{textAlign: 'center' , fontSize: 30}}> Resident Consent </Heading>

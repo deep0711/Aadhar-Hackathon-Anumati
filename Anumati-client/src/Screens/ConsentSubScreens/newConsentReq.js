@@ -99,8 +99,6 @@ export default function NewConsentReq({ setCurrent }) {
     };
     const handleSubmit = async () => {
         setLoading(true);
-        //console.log("Approver Aadhar is",aadhar);
-        //post reqest Aadhar number
         if(aadhar.length == 10)
         {
             fetch('https://anumati.herokuapp.com/anumati-server/create-consent',{
@@ -116,10 +114,9 @@ export default function NewConsentReq({ setCurrent }) {
                     "attachment":"",
                     "RequesterName":RequesterName
                 })
-            }).then(async function(response){
-                //console.log("New Consent Response is ",response);
+            })
+            .then(async function(response){
                 response = await response.json();
-                console.log("New Consent Response is ",response);
                 
                 if(response["message"] ==='Consent Generated Successfully')
                 {
@@ -135,10 +132,9 @@ export default function NewConsentReq({ setCurrent }) {
                             "Mobile" :aadhar,
                             "Message" : body
                         })
-                    }).then(async function(response){
-                        console.log("OTP Sent Successfully");
+                    })
+                    .then(async function(response){
                         await AsyncStorage.setItem('RequestInProgress','true');
-                    
                         toast.show({
                             title: "Consent Generated Successfully",
                             status: "success",
@@ -159,7 +155,7 @@ export default function NewConsentReq({ setCurrent }) {
                     });
                     setLoading(false);
                 }
-            }).catch(err=>console.log(err));
+            }).catch(err => console.log(err));
         }else{
             toast.show({
                 title: "Invalid Mobile Number",

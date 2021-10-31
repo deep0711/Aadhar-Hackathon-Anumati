@@ -10,17 +10,16 @@ import { useTheme } from 'native-base';
 
 export default function TabNav() {
 
-    const { colors } = useTheme();
     const Tab = createBottomTabNavigator();
 
     return (
       <>
       <StatusBar />
         <Tab.Navigator
-          screenOptions={({route})=>({
+          screenOptions={({ route }) => ({
             tabBarActiveTintColor: '#222526',
             tabBarInactiveTintColor: '#b6b9ba',
-            tabBarIcon: ({ focused, color, size }) => {
+            tabBarIcon: ({ color, size }) => {
                 let iconName;
                 switch(route.name){
                   case "Consent":
@@ -33,9 +32,6 @@ export default function TabNav() {
                     iconName = "id-card";
                     return <FontAwesome name="id-card" size={size} color={color} />;
                 }; 
-                    
-                
-                // You can return any component that you like here!
                 return <Icon name={iconName} size={size} color={color} />;
               },
             headerStyle: {

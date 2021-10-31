@@ -7,30 +7,31 @@ import { Foundation } from '@expo/vector-icons';
 
 const ConsentSuccess = ({ colors, handlePress }) => (
     <Box m="10">
-    <Center>
-        <Box mb="5">
-        <FontAwesome 
-        name="check-circle-o" 
-        size={28} 
-        color={colors["secondary"]["500"]} />
-        </Box>
-        <Heading size="lg">
-            Consent Approved
-        </Heading>
-        <Heading size="lg">
-            Finish Your Process
-        </Heading>
-        <Button
-        mt="5"
-        colorScheme="secondary">
-            <Heading 
-            onPress={ handlePress }
-            color="white"
-            size="md">
-                Print Consent Form
+        <Center>
+            <Box mb="5">
+                <FontAwesome 
+                    name="check-circle-o" 
+                    size={28} 
+                    color={colors["secondary"]["500"]} />
+            </Box>
+            <Heading size="lg">
+                Consent Approved
             </Heading>
-        </Button>
-    </Center>
+            <Heading size="lg">
+                Finish Your Process
+            </Heading>
+            <Button
+                mt="5"
+                colorScheme="secondary"
+            >
+                <Heading 
+                onPress={ handlePress }
+                color="white"
+                size="md">
+                    Print Consent Form
+                </Heading>
+            </Button>
+        </Center>
     </Box>
 );
 
@@ -39,20 +40,20 @@ const ConsentFail = ({ colors, handlePress }) => (
         <Center>
             <Box mb="5">
             <Foundation 
-            name="x-circle" 
-            size={28} 
-            color={colors["error"]["500"]} />
+                name="x-circle" 
+                size={28} 
+                color={colors["error"]["500"]} />
             </Box>
             <Heading size="lg" color={colors["error"]["500"]} >
                 Consent Disapproved
             </Heading>
             <Button
-            mt="5"
-            colorScheme="secondary">
+                mt="5"
+                colorScheme="secondary">
                 <Heading 
-                onPress={handlePress}
-                color="white"
-                size="md">
+                    onPress={handlePress}
+                    color="white"
+                    size="md">
                     Go Home
                 </Heading>
             </Button>
@@ -74,8 +75,6 @@ export default function Verdict({ setCurrent, success=true, navigation,ConsentID
     const [vtc,setVtc] = useState("");
    
     const handleHome = async () => {
-        // reset the consent
-        //Print the Consent request;
         await fetch('https://anumati.herokuapp.com/anumati-server/update-consent',{
             method:'POST',
             headers: {
@@ -86,14 +85,14 @@ export default function Verdict({ setCurrent, success=true, navigation,ConsentID
                 "Status":"Finish",
                 "ConsentID":ConsentID
             })
-        }).then(async function(response){
+        })
+        .then(async function(response){
             response = await response.json();
-            console.log(response["message"]);
             navigation.navigate('Dashboard');   
-        }).catch(err=>console.log(err));
+        })
+        .catch( err => console.log("handleHome" , err));
     };
     useEffect(() => {
-
       fetch('https://anumati.herokuapp.com/anumati-server/get-address',{
           method:'POST',
           headers: {
@@ -103,7 +102,8 @@ export default function Verdict({ setCurrent, success=true, navigation,ConsentID
           body:JSON.stringify({
               "ConsentID":ConsentID,
           })
-      }).then(async function(response){
+      })
+      .then(async function(response){
           response = await response.json();
           setHouse(response["HouseNumber"])
           setCountry(response["Country"]);
@@ -115,25 +115,32 @@ export default function Verdict({ setCurrent, success=true, navigation,ConsentID
           setStreet(response["StreetName"]);
           setSubDist(response["SubDist"]);
           setVtc(response["Village"]);   
-      }).catch(err=>console.log(err));
-      
+      })
+      .catch(err => console.log("useEffect Verdict " , err));
   }, [])
 
     return (
         <View 
-    style={{ 
-        flex: 1,
-        alignItems: "center", 
-        }}>
+            style={{ 
+                flex: 1,
+                alignItems: "center", 
+            }}
+        >
             <Box mt="10">
-            <Card>
-                { success ? <ConsentSuccess 
-                handlePress={ handleHome }
-                colors={colors} /> : 
-                <ConsentFail 
-                handlePress={ handleHome }
-                colors={colors} /> }
-            </Card>
+                <Card>
+                    { 
+                        success ? 
+                        <ConsentSuccess 
+                            handlePress={ handleHome }
+                            colors={colors} 
+                        /> 
+                        : 
+                        <ConsentFail 
+                            handlePress={ handleHome }
+                            colors={colors} 
+                        /> 
+                    }
+                </Card>
             </Box>
         </View>
     );
